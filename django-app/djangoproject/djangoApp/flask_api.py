@@ -59,7 +59,7 @@ class FlaskAPIClient:
             print(f"Error fecthing start of story {story_id}: {e}")
             return None
 
-    def get_pages(self, page_id):
+    def get_page(self, page_id):
         try:
             response = requests.get(f"{self.url}/pages/{page_id}", timeout=10)
             return self._handle_response(response)
