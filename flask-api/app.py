@@ -9,7 +9,7 @@ def create_app():
     app.config.from_object(Config)
     db.init_app(app)
 
-    # Create tables 
+    # Create tables
     with app.app_context():
         db.create_all()
 
@@ -30,7 +30,7 @@ def create_app():
 
         return None
 
-    # READ ENDPOINTS 
+    # READ ENDPOINTS
 
     @app.get("/stories")
     def list_stories():
@@ -39,7 +39,25 @@ def create_app():
         if status:
             q = q.filter_by(status=status)
         stories = q.order_by(Story.id.desc()).all()
-        return jsonify([
+        return jsonify(
+            [
+                {
+                    "id": s.id,
+                    "title": s.title,
+                    "description": s.description,
+                    "status": s.status,
+                    "start_page_id": s.start_page_id,
+                }
+                for s in stories
+            ]
+        )
+
+    @app.get("/stories/<int:story_id>")
+    def get_story(story_id):
+        s = Story.query.get(story_id)
+        if not s:
+            return error("Story not found", 404)
+        return jsonify(
             {
                 "id": s.id,
                 "title": s.title,
@@ -47,21 +65,7 @@ def create_app():
                 "status": s.status,
                 "start_page_id": s.start_page_id,
             }
-            for s in stories
-        ])
-
-    @app.get("/stories/<int:story_id>")
-    def get_story(story_id):
-        s = Story.query.get(story_id)
-        if not s:
-            return error("Story not found", 404)
-        return jsonify({
-            "id": s.id,
-            "title": s.title,
-            "description": s.description,
-            "status": s.status,
-            "start_page_id": s.start_page_id,
-        })
+        )
 
     @app.get("/stories/<int:story_id>/start")
     def get_story_start(story_id):
@@ -84,21 +88,23 @@ def create_app():
             return error("Page not found", 404)
 
         choices = Choice.query.filter_by(page_id=p.id).order_by(Choice.id.asc()).all()
-        return jsonify({
-            "id": p.id,
-            "story_id": p.story_id,
-            "text": p.text,
-            "is_ending": p.is_ending,
-            "ending_label": p.ending_label,
-            "choices": [
-                {
-                    "id": c.id,
-                    "text": c.text,
-                    "next_page_id": c.next_page_id,
-                }
-                for c in choices
-            ]
-        })
+        return jsonify(
+            {
+                "id": p.id,
+                "story_id": p.story_id,
+                "text": p.text,
+                "is_ending": p.is_ending,
+                "ending_label": p.ending_label,
+                "choices": [
+                    {
+                        "id": c.id,
+                        "text": c.text,
+                        "next_page_id": c.next_page_id,
+                    }
+                    for c in choices
+                ],
+            }
+        )
 
     # WRITE ENDPOINTS (PROTECTED)
 
@@ -172,9 +178,9 @@ def create_app():
         page_ids = [p.id for p in pages]
 
         if page_ids:
-            Choice.query.filter(
-                Choice.page_id.in_(page_ids)
-            ).delete(synchronize_session=False)
+            Choice.query.filter(Choice.page_id.in_(page_ids)).delete(
+                synchronize_session=False
+            )
 
         Page.query.filter_by(story_id=s.id).delete(synchronize_session=False)
 
@@ -246,6 +252,92 @@ def create_app():
         db.session.add(c)
         db.session.commit()
         return jsonify({"id": c.id}), 201
+
+    @app.put("/pages/<int:page_id>")
+    def update_page(page_id):
+        block = require_api_key()
+        if block:
+            return block
+
+        p = Page.query.get(page_id)
+        if not p:
+            return error("Page not found", 404)
+
+        data = request.get_json(silent=True) or {}
+
+        if "text" in data:
+            new_text = (data.get("text") or "").strip()
+            if not new_text:
+                return error("text cannot be empty", 400)
+            p.text = new_text
+
+        if "is_ending" in data:
+            p.is_ending = bool(data.get("is_ending"))
+
+        if "ending_label" in data:
+            p.ending_label = data.get("ending_label")
+
+        db.session.commit()
+        return jsonify({"id": p.id})
+
+    @app.delete("/pages/<int:page_id>")
+    def delete_page(page_id):
+        block = require_api_key()
+        if block:
+            return block
+
+        p = Page.query.get(page_id)
+        if not p:
+            return error("Page not found", 404)
+
+        Choice.query.filter_by(page_id=p.id).delete(synchronize_session=False)
+
+        db.session.delete(p)
+        db.session.commit()
+        return jsonify({"deleted": True})
+
+    @app.put("/choices/<int:choice_id>")
+    def update_choice(choice_id):
+        block = require_api_key()
+        if block:
+            return block
+
+        c = Choice.query.get(choice_id)
+        if not c:
+            return error("Choice not found", 404)
+
+        data = request.get_json(silent=True) or {}
+
+        if "text" in data:
+            new_text = (data.get("text") or "").strip()
+            if not new_text:
+                return error("text cannot be empty", 400)
+            c.text = new_text
+
+        if "next_page_id" in data:
+            next_page = Page.query.get(data.get("next_page_id"))
+            if not next_page:
+                return error("next_page_id does not exist", 400)
+            if next_page.story_id != Page.query.get(c.page_id).story_id:
+                return error("next_page_id must belong to the same story", 400)
+            c.next_page_id = next_page.id
+
+        db.session.commit()
+        return jsonify({"id": c.id})
+
+    @app.delete("/choices/<int:choice_id>")
+    def delete_choice(choice_id):
+        block = require_api_key()
+        if block:
+            return block
+
+        c = Choice.query.get(choice_id)
+        if not c:
+            return error("Choice not found", 404)
+
+        db.session.delete(c)
+        db.session.commit()
+        return jsonify({"deleted": True})
 
     @app.get("/health")
     def health():
