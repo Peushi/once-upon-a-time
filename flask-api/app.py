@@ -47,6 +47,7 @@ def create_app():
                     "description": s.description,
                     "status": s.status,
                     "start_page_id": s.start_page_id,
+                    "tags": s.tags
                 }
                 for s in stories
             ]
@@ -64,6 +65,7 @@ def create_app():
                 "description": s.description,
                 "status": s.status,
                 "start_page_id": s.start_page_id,
+                "tags": s.tags
             }
         )
 
@@ -122,11 +124,18 @@ def create_app():
             return error("title is required", 400)
         if status not in VALID_STATUSES:
             return error("Invalid status. Use draft/published/suspended", 400)
+        tags_data = data.get("tags")
+        if isinstance(tags_data, list):
+            tags = ",".join(tags_data)
+        else:
+            tags = tags_data
 
         s = Story(
             title=title,
             description=data.get("description"),
             status=status,
+            tags=tags,
+            author_id=data.get("author_id")
         )
         db.session.add(s)
         db.session.commit()
@@ -160,12 +169,19 @@ def create_app():
 
         if "start_page_id" in data:
             s.start_page_id = data["start_page_id"]
+            
+        if "tags" in data:
+            tags_data = data.get("tags")
+            if isinstance(tags_data, list):
+                s.tags = ",".join(tags_data)
+            else:
+                s.tags = tags_data
 
         db.session.commit()
         return jsonify({"id": s.id})
 
     @app.delete("/stories/<int:story_id>")
-    def delete_story():
+    def delete_story(story_id):
         block = require_api_key()
         if block:
             return block

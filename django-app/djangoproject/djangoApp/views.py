@@ -114,7 +114,7 @@ def play_story(request, story_id):
         PlaySession.objects.create(
             session_key=session_key,
             story_id=story_id,
-            current_page_id=story_id['id'],
+            current_page_id=start_page['page_id'],
             user=request.user if request.user.is_authenticated else None)
         
     #initialise the path tracking

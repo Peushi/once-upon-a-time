@@ -8,6 +8,8 @@ class Story(db.Model):
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), nullable=False, default="draft")  
     start_page_id = db.Column(db.Integer, nullable=True)  # pages.id
+    tags = db.Column(db.String(500), nullable=True)
+    author_id = db.Column(db.Integer, nullable=True)
 
 class Page(db.Model):
     __tablename__ = "pages"

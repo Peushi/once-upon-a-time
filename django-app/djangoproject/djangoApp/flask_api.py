@@ -9,7 +9,7 @@ class FlaskAPIClient:
     def _get_head(self, include_auth=False):
         headers = {'Content-Type':'application/json'}
         if include_auth:
-            headers['X-API-KEY'] = self.api_key
+            headers['X-API-KEY'] = self.key
         return headers
     
     def _handle_response(self, response):
@@ -37,7 +37,7 @@ class FlaskAPIClient:
         try:
             response = requests.get(f"{self.url}/stories", params=params, timeout=10) #------------------------------
             data = self._handle_response(response)
-            return data.get('story', []) if data else []
+            return data if data else []
         except Exception as e:
             print(f"Error fetching stories: {e}")
             return []
@@ -149,7 +149,7 @@ class FlaskAPIClient:
         
     def update_choice(self, choice_id, **kwargs):
         try: 
-            response = requests.put(f"{self.url}/choice/{choice_id}", json=kwargs, headers=self._get_head(include_auth=True), timeout=10)
+            response = requests.put(f"{self.url}/choices/{choice_id}", json=kwargs, headers=self._get_head(include_auth=True), timeout=10)
             result =self._handle_response(response)
             return result.get('choice') if result else None
         except Exception as e:
@@ -158,7 +158,7 @@ class FlaskAPIClient:
         
     def delete_choice(self, choice_id):
         try: 
-            response = requests.delete(f"{self.url}/choice/{choice_id}", headers=self._get_head(include_auth=True), timeout=10)
+            response = requests.delete(f"{self.url}/choices/{choice_id}", headers=self._get_head(include_auth=True), timeout=10)
             return response.status_code==200
         except Exception as e:
             print(f"Error deleteing choice {choice_id}: {e}")
