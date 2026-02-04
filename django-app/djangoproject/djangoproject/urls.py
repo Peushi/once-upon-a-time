@@ -51,5 +51,8 @@ urlpatterns = [
     path('delete-choice/<int:choice_id>/', views_author.delete_choice, name='delete_choice'),
 
     path('suspend-story/<int:story_id>/', views_author.suspend_story, name='suspend_story'),
-    path('unsuspend-story/<int:story_id>/', views_author.unsuspend_story, name='unsuspend_story'),  
+    path('unsuspend-story/<int:story_id>/', views_author.unsuspend_story, name='unsuspend_story'), 
+
+    path('story-tree/<int:story_id>/', views_author.story_tree, name='story_tree'),
+ 
 ]

@@ -84,42 +84,45 @@ def play_story(request, story_id):
     if not story:
         messages.error(request, 'Story not found')
         return redirect('home')
-    
+
     if story['status'] not in ['published', 'draft']:
         messages.error(request, 'This story is not available for playing')
         return redirect('home')
-    
-    #saved session
+
+    # saved session
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
         session_key = request.session.session_key
+
     saved_session = PlaySession.objects.filter(session_key=session_key, story_id=story_id).first()
 
     if saved_session and request.GET.get('resume') != 'false':
-        #resuming
         return redirect('play_page', story_id=story_id, page_id=saved_session.current_page_id)
-    
-    #start from beginning
+
+    # start from beginning
     start_page = flask_api.get_story_start(story_id)
-    if not start_page:
-        messages.error(request, 'Story has no start page')
+
+    # start_page MUST be a dict with "id"
+    if not start_page or 'id' not in start_page:
+        messages.error(request, 'Story has no start page set yet.')
         return redirect('story_detail', story_id=story_id)
-    
-    #create/update the session
+
+    start_page_id = start_page['id']
+
+    # create/update the session
     if saved_session:
-        saved_session.current_page_id = start_page['id']
+        saved_session.current_page_id = start_page_id
         saved_session.save()
     else:
         PlaySession.objects.create(
             session_key=session_key,
             story_id=story_id,
-            current_page_id=start_page['page_id'],
-            user=request.user if request.user.is_authenticated else None)
-        
-    #initialise the path tracking
+            current_page_id=start_page_id,
+            user=request.user if request.user.is_authenticated else None
+        )
 
-    return redirect('play_page', story_id=story_id, page_id=start_page['id'])
+    return redirect('play_page', story_id=story_id, page_id=start_page_id)
 
 def play_page(request, story_id, page_id):
     story = flask_api.get_story(story_id)
@@ -148,7 +151,7 @@ def play_page(request, story_id, page_id):
     
     context ={'story': story,
                'page': page,
-               'is_ending': True}
+               'is_ending': False}
     return render(request, 'game/play_page.html', context)
 
 def stats(request):
