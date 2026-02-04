@@ -181,7 +181,6 @@ def create_app():
         db.session.commit()
 
         return jsonify({
-            "story": {
                 "id": s.id,
                 "title": s.title,
                 "description": s.description,
@@ -190,7 +189,7 @@ def create_app():
                 "author_id": s.author_id,
                 "tags": s.tags,
             }
-        }), 201
+        ), 201
 
     @app.put("/stories/<int:story_id>")
     def update_story(story_id):
@@ -231,7 +230,6 @@ def create_app():
         db.session.commit()
 
         return jsonify({
-            "story": {
                 "id": s.id,
                 "title": s.title,
                 "description": s.description,
@@ -240,7 +238,7 @@ def create_app():
                 "author_id": s.author_id,
                 "tags": s.tags,
             }
-        })
+        )
 
     @app.delete("/stories/<int:story_id>")
     def delete_story(story_id):
@@ -294,14 +292,13 @@ def create_app():
             db.session.commit()
 
         return jsonify({
-            "pages": {
                 "id": p.id,
                 "story_id": p.story_id,
                 "text": p.text,
                 "is_ending": p.is_ending,
                 "ending_label": p.ending_label
             }
-        }), 201
+        ), 201
 
     @app.put("/pages/<int:page_id>")
     def update_page(page_id):
@@ -330,14 +327,13 @@ def create_app():
         db.session.commit()
 
         return jsonify({
-            "pages": {
                 "id": p.id,
                 "story_id": p.story_id,
                 "text": p.text,
                 "is_ending": p.is_ending,
                 "ending_label": p.ending_label
             }
-        })
+        )
 
     @app.delete("/pages/<int:page_id>")
     def delete_page(page_id):
@@ -390,13 +386,12 @@ def create_app():
         db.session.commit()
 
         return jsonify({
-            "choice": {
                 "id": c.id,
                 "page_id": c.page_id,
                 "text": c.text,
                 "next_page_id": c.next_page_id
             }
-        }), 201
+        ), 201
 
     @app.put("/choices/<int:choice_id>")
     def update_choice(choice_id):
@@ -437,13 +432,12 @@ def create_app():
         db.session.commit()
 
         return jsonify({
-            "choice": {
                 "id": c.id,
                 "page_id": c.page_id,
                 "text": c.text,
                 "next_page_id": c.next_page_id
             }
-        })
+        )
 
     @app.delete("/choices/<int:choice_id>")
     def delete_choice(choice_id):
@@ -469,4 +463,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
