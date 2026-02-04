@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Choice{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🔀 Add Choice</h1>
+    <p>From page: <strong>{{ page.id }}</strong></p>
+    <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
+        {{ page.text|truncatewords:50 }}
+    </p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="text">Choice Text:</label>
+            <input type="text" id="text" name="text" required 
+                   placeholder="e.g., Enter the cave, Run away, Talk to the stranger">
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                What action can the player take?
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label for="next_page_id">Goes to Page:</label>
+            <select id="next_page_id" name="next_page_id" required>
+                <option value="">Select destination page...</option>
+                {% for p in story.pages %}
+                    <option value="{{ p.id }}">
+                        Page {{ p.id }}: {{ p.text|truncatewords:15 }}
+                        {% if p.is_ending %}(ENDING){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <button type="submit" class="btn">Add Choice</button>
+        <a href="{% url 'edit_story' story.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

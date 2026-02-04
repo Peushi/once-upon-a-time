@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit: {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>✍️ Editing: {{ story.title }}</h1>
+    <span class="badge badge-{{ story.status }}">{{ story.status|upper }}</span>
+</div>
+
+<!-- Story Settings -->
+<div class="card">
+    <h2>Story Settings</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_story">
+        
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" value="{{ story.title }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description">{{ story.description }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="tags">Tags (example: Fantasy, Adventure):</label>
+            <input type="text" id="tags" name="tags" value="{% for tag in story.tags %}{{ tag }}{% if not forloop.last %},{% endif %}{% endfor %}">
+        </div>
+<!--        
+        <div class="form-group">
+            <label for="illustration">Illustration URL:</label>
+            <input type="text" id="illustration" name="illustration" value="{{ story.illustration }}">
+        </div>
+-->        
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="draft" {% if story.status == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="published" {% if story.status == 'published' %}selected{% endif %}>Published</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn">Update Story</button>
+        <a href="{% url 'my_stories' %}" class="btn btn-secondary">Back to My Stories</a>
+        <a href="{% url 'delete_story' story.id %}" class="btn btn-danger" 
+           onclick="return confirm('Delete this entire story? This cannot be undone!')">Delete Story</a>
+    </form>
+</div>
+
+<!-- Start Page Selection -->
+<div class="card">
+    <h2>Start Page</h2>
+    {% if story.start_page_id %}
+        <p>Current start page: <strong>Page {{ story.start_page_id }}</strong></p>
+    {% else %}
+        <p style="color: #f44336;">⚠️ No start page set! The story cannot be played yet.</p>
+    {% endif %}
+    
+    {% if story.pages %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="set_start_page">
+            <div class="form-group">
+                <label for="start_page_id">Set Start Page:</label>
+                <select id="start_page_id" name="start_page_id">
+                    {% for page in story.pages %}
+                        <option value="{{ page.id }}" {% if page.id == story.start_page_id %}selected{% endif %}>
+                            Page {{ page.id }}: {{ page.text|truncatewords:10 }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn">Set Start Page</button>
+        </form>
+    {% endif %}
+</div>
+
+<!-- Pages Management -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Pages ({{ story.pages|length }})</h2>
+        <a href="{% url 'create_page' story.id %}" class="btn btn-success">+ Add Page</a>
+    </div>
+    
+    {% if story.pages %}
+        <div class="grid">
+            {% for page in story.pages %}
+                <div class="card" style="background: {% if page.is_ending %}#ffebee{% else %}#f8f9fa{% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <strong>Page {{ page.id }}</strong>
+                            {% if page.id == story.start_page_id %}
+                                <span class="badge badge-success">START</span>
+                            {% endif %}
+                            {% if page.is_ending %}
+                                <span class="badge" style="background: #f44336; color: white;">ENDING</span>
+                                {% if page.ending_label %}
+                                    <span class="badge" style="background: #9c27b0; color: white;">{{ page.ending_label }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <p style="margin: 0.5rem 0;">{{ page.text|truncatewords:20 }}</p>
+                    
+                    <div style="margin-top: 0.5rem;">
+                        <strong>Choices:</strong> {{ page.choices|length }}
+                    </div>
+                    
+                    {% if page.choices %}
+                        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                            {% for choice in page.choices %}
+                                <li>
+                                    {{ choice.text|truncatewords:10 }} → Page {{ choice.next_page_id }}
+                                    <form method="POST" action="{% url 'delete_choice' choice.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="page_id" value="{{ page.id }}">
+                                        <input type="hidden" name="story_id" value="{{ story.id }}">
+                                        <button type="submit" style="color: #f44336; background: none; border: none; cursor: pointer; font-size: 0.9rem;"
+                                                onclick="return confirm('Delete this choice?')">✖</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'edit_page' page.id %}" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Edit</a>
+                        <a href="{% url 'create_choice' page.id %}" class="btn btn-success" style="padding: 0.5rem 1rem; font-size: 0.9rem;">+ Choice</a>
+                        <a href="{% url 'delete_page' page.id %}" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem;"
+                           onclick="return confirm('Delete this page and all its choices?')">Delete</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No pages yet. <a href="{% url 'create_page' story.id %}">Create the first page</a> to get started!</p>
+    {% endif %}
+</div>
+
+<!-- Preview 
+<div class="card" style="background: #e8f5e9;">
+    <h2>Preview</h2>
+    <p>Test your story before publishing!</p>
+    <a href="{% url 'play_story' story.id %}" class="btn btn-success" target="_blank">▶ Preview Story</a>
+    <a href="{% url 'story_tree' story.id %}" class="btn btn-secondary" target="_blank">📊 View Story Map</a>
+</div>
+-->
+{% endblock %}

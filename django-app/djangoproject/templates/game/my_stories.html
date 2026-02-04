@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}My Stories - NAHB{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>✍️ My Stories</h1>
+            <p>Manage your interactive adventures</p>
+        </div>
+        <a href="{% url 'create_story' %}" class="btn btn-success">+ Create New Story</a>
+    </div>
+</div>
+
+{% if stories %}
+    <div class="grid grid-2">
+        {% for story in stories %}
+            <div class="card" style="background: #f8f9fa;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">{{ story.title }}</h3>
+                    <span class="badge badge-{{ story.status }}">{{ story.status|upper }}</span>
+                </div>
+                
+                <p style="color: #666; margin-bottom: 1rem;">
+                    {{ story.description|default:"No description"|truncatewords:20 }}
+                </p>
+                
+                <!-- Story Stats -->
+                <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1.5rem; font-size: 0.9rem;">
+                        <div>
+                            <strong>📄 Pages:</strong> 
+                            {% if story.pages %}{{ story.pages|length }}{% else %}0{% endif %}
+                        </div>
+                        <div>
+                            <strong>🎯 Start:</strong> 
+                            {% if story.start_page_id %}Set{% else %}<span style="color: #f44336;">Not Set</span>{% endif %}
+                        </div>
+                        <div>
+                            <strong>🏷️ Tags:</strong> 
+                            {% if story.tags %}{{ story.tags|length }}{% else %}0{% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tags Display -->
+                {% if story.tags %}
+                    <div style="margin-bottom: 1rem;">
+                        {% for tag in story.tags %}
+                            <span class="badge" style="background: #e3f2fd; color: #1976d2; margin-right: 0.25rem;">
+                                {{ tag }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Warning if incomplete -->
+                {% if not story.start_page_id %}
+                    <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 0.75rem; margin-bottom: 1rem; border-radius: 4px;">
+                        <strong>⚠️ Action Required:</strong> Set a start page before publishing!
+                    </div>
+                {% endif %}
+                
+                <!-- Actions -->
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="{% url 'edit_story' story.id %}" class="btn">
+                        ✏️ Edit
+                    </a>
+                    
+                    {% if story.start_page_id %}
+                        <a href="{% url 'play_story' story.id %}" class="btn btn-success" target="_blank">
+                            ▶️ Preview
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">
+                        📊 View Details
+                    </a>
+                    
+                    <a href="{% url 'delete_story' story.id %}" 
+                       class="btn btn-danger"
+                       onclick="return confirm('Delete {{ story.title }}? This cannot be undone!')">
+                        🗑️ Delete
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card text-center" style="background: #f8f9fa; padding: 3rem;">
+        <h2 style="color: #666; margin-bottom: 1rem;">📚 No Stories Yet</h2>
+        <p style="color: #999; margin-bottom: 2rem;">
+            Start creating your first interactive adventure!
+        </p>
+        <a href="{% url 'create_story' %}" class="btn btn-success" style="font-size: 1.1rem;">
+            ✨ Create Your First Story
+        </a>
+    </div>
+{% endif %}
+
+<!-- Quick Stats -->
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h3 style="color: white; margin-bottom: 1rem;">📈 Your Author Stats</h3>
+    <div class="grid grid-3">
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; font-weight: bold;">{{ stories|length }}</div>
+            <div style="opacity: 0.9;">Total Stories</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; font-weight: bold;">
+                {% for story in stories %}{% if story.status == 'published' %}1{% endif %}{% empty %}0{% endfor %}
+            </div>
+            <div style="opacity: 0.9;">Published</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; font-weight: bold;">
+                {% for story in stories %}{% if story.status == 'draft' %}1{% endif %}{% empty %}0{% endfor %}
+            </div>
+            <div style="opacity: 0.9;">Drafts</div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <a href="{% url 'home' %}" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}

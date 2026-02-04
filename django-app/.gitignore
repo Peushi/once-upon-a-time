@@ -1,2 +1,4 @@
 
 pipfile.lock
+.env
+db.sqlite3

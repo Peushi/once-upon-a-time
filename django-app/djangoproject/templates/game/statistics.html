@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistics - NAHB{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📊 Global Statistics</h1>
+    <p>Platform-wide metrics and analytics</p>
+</div>
+
+<div class="card">
+    <h2>Overview</h2>
+    <div class="grid grid-3">
+        <div class="card" style="background: #e3f2fd; text-align: center;">
+            <h3 style="font-size: 3rem; color: #1976d2; margin: 0;">{{ total_stories }}</h3>
+            <p>Published Stories</p>
+        </div>
+        <div class="card" style="background: #f3e5f5; text-align: center;">
+            <h3 style="font-size: 3rem; color: #7b1fa2; margin: 0;">{{ total_plays }}</h3>
+            <p>Total Plays</p>
+        </div>
+        <div class="card" style="background: #e8f5e9; text-align: center;">
+            <h3 style="font-size: 3rem; color: #388e3c; margin: 0;">{{ total_users }}</h3>
+            <p>Registered Users</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Story Performance</h2>
+    
+    {% if story_stats %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 1rem; text-align: left;">Story</th>
+                        <th style="padding: 1rem; text-align: center;">Total Plays</th>
+                        <th style="padding: 1rem; text-align: center;">Unique Players</th>
+                        <th style="padding: 1rem; text-align: center;">Endings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in story_stats %}
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 1rem;">
+                                <a href="{% url 'story_detail' stat.story.id %}" style="color: #667eea; text-decoration: none;">
+                                    <strong>{{ stat.story.title }}</strong>
+                                </a>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">{{ stat.total_plays }}</td>
+                            <td style="padding: 1rem; text-align: center;">{{ stat.unique_players }}</td>
+                            <td style="padding: 1rem; text-align: center;">{{ stat.endings|length }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No statistics available yet.</p>
+    {% endif %}
+</div>
+
+<div class="text-center">
+    <a href="{% url 'home' %}" class="btn btn-secondary">← Back to Home</a>
+</div>
+{% endblock %}

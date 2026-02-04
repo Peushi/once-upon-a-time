@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Page - {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="background: #ffebee; border-left: 4px solid #f44336;">
+    <h1 style="color: #f44336;">⚠️ Delete Page?</h1>
+    <p style="color: #666;">This action cannot be undone!</p>
+</div>
+
+<div class="card">
+    <h2>You are about to delete a page from:</h2>
+    <h3 style="color: #667eea; margin: 0.5rem 0 1.5rem 0;">{{ story.title }}</h3>
+
+    <!-- Page Preview -->
+    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <strong style="color: #667eea;">Page #{{ page.id }}</strong>
+            {% if page.is_ending %}
+                <span class="badge" style="background: #4CAF50; color: white;">
+                    ENDING
+                    {% if page.ending_label %}: {{ page.ending_label }}{% endif %}
+                </span>
+            {% endif %}
+        </div>
+        
+        <p style="color: #666; margin: 0;">
+            {{ page.text|truncatewords:50 }}
+        </p>
+    </div>
+
+    <!-- Warning about choices -->
+    {% if page.choices %}
+        <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <strong>⚠️ Choices Will Be Deleted:</strong>
+            <p style="margin: 0.5rem 0; color: #555;">
+                This page has <strong>{{ page.choices|length }} choice(s)</strong> that will also be deleted:
+            </p>
+            <ul style="margin: 0.5rem 0 0 1.5rem; color: #555;">
+                {% for choice in page.choices %}
+                    <li>{{ choice.text }} → Page {{ choice.next_page_id }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Warning about being start page -->
+    {% if story.start_page_id == page.id %}
+        <div style="background: #ffebee; border-left: 4px solid #f44336; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <strong>🚨 Critical Warning:</strong>
+            <p style="margin: 0.5rem 0 0 0; color: #555;">
+                This is the <strong>START PAGE</strong> of your story! 
+                Deleting it will make your story unplayable until you set a new start page.
+            </p>
+        </div>
+    {% endif %}
+
+    <!-- Warning about incoming choices -->
+    <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+        <strong>📌 Important:</strong>
+        <p style="margin: 0.5rem 0 0 0; color: #555;">
+            If other pages have choices that lead TO this page (Page #{{ page.id }}), 
+            those choices will become broken after deletion. You'll need to update or delete them manually.
+        </p>
+    </div>
+
+    <!-- Alternatives -->
+    <div style="background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+        <strong>💡 Alternatives:</strong>
+        <p style="margin: 0.5rem 0 0 0; color: #555;">
+            Instead of deleting, you could:
+        </p>
+        <ul style="margin: 0.5rem 0 0 1.5rem; color: #555;">
+            <li><strong>Edit the page</strong> to change its content</li>
+            <li><strong>Remove choices</strong> instead of the entire page</li>
+            <li><strong>Keep it as a draft</strong> and create new pages</li>
+        </ul>
+    </div>
+
+    <!-- Confirmation Form -->
+    <form method="POST" onsubmit="return confirmDelete();">
+        {% csrf_token %}
+        
+        <div style="background: #ffebee; border: 2px solid #f44336; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin: 0;">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" 
+                           id="confirm-delete" 
+                           required
+                           style="margin-right: 0.5rem; width: 20px; height: 20px;">
+                    <span style="color: #f44336; font-weight: 600;">
+                        I understand this will permanently delete Page #{{ page.id }} 
+                        {% if page.choices %}and its {{ page.choices|length }} choice(s){% endif %}
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" 
+                    class="btn btn-danger" 
+                    style="font-size: 1.1rem;">
+                🗑️ Yes, Delete Page
+            </button>
+            <a href="{% url 'edit_story' story.id %}" 
+               class="btn btn-success"
+               style="font-size: 1.1rem;">
+                ← No, Keep Page
+            </a>
+            <a href="{% url 'edit_page' page.id %}" 
+               class="btn btn-secondary">
+                ✏️ Edit Instead
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Page Details -->
+<div class="card" style="background: #f8f9fa;">
+    <h3>📊 Page Details</h3>
+    <div class="grid grid-2">
+        <div>
+            <strong>Page ID:</strong> {{ page.id }}
+        </div>
+        <div>
+            <strong>Story:</strong> {{ story.title }}
+        </div>
+        <div>
+            <strong>Is Ending:</strong> 
+            {% if page.is_ending %}
+                <span style="color: #4CAF50;">✓ Yes</span>
+                {% if page.ending_label %}
+                    ({{ page.ending_label }})
+                {% endif %}
+            {% else %}
+                <span style="color: #999;">✗ No</span>
+            {% endif %}
+        </div>
+        <div>
+            <strong>Choices:</strong> {{ page.choices|length }}
+        </div>
+        {% if story.start_page_id == page.id %}
+            <div style="grid-column: 1 / -1;">
+                <strong style="color: #f44336;">⚠️ This is the START PAGE</strong>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete() {
+    const checkbox = document.getElementById('confirm-delete');
+    if (!checkbox.checked) {
+        alert('Please confirm by checking the box');
+        return false;
+    }
+    
+    {% if story.start_page_id == page.id %}
+        return confirm('FINAL WARNING: This is your START PAGE! Your story will be unplayable after deletion. Continue?');
+    {% else %}
+        return confirm('Are you sure you want to delete this page? This cannot be undone!');
+    {% endif %}
+}
+</script>
+{% endblock %}

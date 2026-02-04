@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Story - NAHB{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>✨ Create New Story</h1>
+    <p>Start crafting your interactive adventure</p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="title">Story Title: <span style="color: #f44336;">*</span></label>
+            <input type="text" 
+                   id="title" 
+                   name="title" 
+                   required 
+                   autofocus
+                   placeholder="Enter a captivating title...">
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                Choose a title that grabs attention and hints at the adventure
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" 
+                      name="description"
+                      placeholder="Describe your story... What's it about? What can players expect?"></textarea>
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                Give readers a preview of the adventure that awaits them
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label for="tags">Tags (comma-separated):</label>
+            <input type="text" 
+                   id="tags" 
+                   name="tags"
+                   placeholder="e.g., adventure, fantasy, mystery, horror">
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                Help readers discover your story. Separate tags with commas.
+            </small>
+        </div>
+        
+        <!-- Info Box -->
+        <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <strong>📝 What happens next?</strong>
+            <p style="margin: 0.5rem 0 0 0; color: #555;">
+                After creating your story, you'll be able to:
+            </p>
+            <ul style="margin: 0.5rem 0 0 1.5rem; color: #555;">
+                <li>Add pages (scenes) to your story</li>
+                <li>Create choices that link pages together</li>
+                <li>Set a starting page</li>
+                <li>Preview your story</li>
+                <li>Publish when ready!</li>
+            </ul>
+        </div>
+        
+        <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <strong>💡 Tip:</strong>
+            <p style="margin: 0.5rem 0 0 0; color: #555;">
+                Your story will be created as a <strong>draft</strong>. You can add pages and choices before publishing it for readers.
+            </p>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success" style="font-size: 1.1rem;">
+                ✨ Create Story
+            </button>
+            <a href="{% url 'my_stories' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Quick Tips -->
+<div class="card" style="background: #f8f9fa;">
+    <h3>📚 Story Creation Tips</h3>
+    <div class="grid grid-2">
+        <div style="padding: 1rem;">
+            <h4 style="color: #667eea; margin-bottom: 0.5rem;">🎯 Good Titles</h4>
+            <ul style="color: #666; margin: 0; padding-left: 1.5rem;">
+                <li>"The Lost City of Atlantis"</li>
+                <li>"Escape from the Haunted Manor"</li>
+                <li>"Quest for the Dragon's Treasure"</li>
+                <li>"Mystery at Midnight Academy"</li>
+            </ul>
+        </div>
+        <div style="padding: 1rem;">
+            <h4 style="color: #667eea; margin-bottom: 0.5rem;">🏷️ Popular Tags</h4>
+            <ul style="color: #666; margin: 0; padding-left: 1.5rem;">
+                <li>adventure, fantasy, sci-fi</li>
+                <li>horror, mystery, thriller</li>
+                <li>romance, comedy, drama</li>
+                <li>short, medium, long</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - NAHB{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📚 Choose Your Own Adventure</h1>
+    <p>Welcome to NAHB - Not Another Hero's Book! Dive into interactive stories where your choices shape the narrative.</p>
+    
+    {% if level %}
+        <p><small><strong>{{ level }}</strong></small></p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Find Stories</h2>
+    <form method="GET" action="{% url 'home' %}">
+        <div class="grid grid-2">
+            <div class="form-group">
+                <label for="search">Search by title or description:</label>
+                <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Enter keywords...">
+            </div>
+            <div class="form-group">
+                <label for="tags">Filter by tags:</label>
+                <input type="text" id="tags" name="tags" value="{{ tags_filter }}" placeholder="e.g., adventure, mystery">
+            </div>
+        </div>
+        <button type="submit" class="btn">Search</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Clear</a>
+    </form>
+</div>
+
+
+<div class="card">
+    <h2>Published Stories</h2>
+    
+    {% if stories %}
+        <div class="grid grid-2">
+            {% for story in stories %}
+                <div class="card" style="background: #f8f9fa;">
+                    <h3>{{ story.title }}</h3>
+                    <p>{{ story.description|truncatewords:30 }}</p>
+                    
+                    <!-- Level 13: Tags -->
+                    {% if story.tags %}
+                        <div style="margin: 0.5rem 0;">
+                            {% for tag in story.tags %}
+                                <span class="badge" style="background: #e3f2fd; color: #1976d2;">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+
+<!--                   {% if story.avg_rating %}
+                        <div style="margin: 0.5rem 0;">
+                            ⭐ {{ story.avg_rating|floatformat:1 }} / 5.0 ({{ story.rating_count }} ratings)
+                        </div>
+                    {% endif %}
+--> 
+                    
+                    <div style="margin-top: 1rem;">
+                        <a href="{% url 'story_detail' story.id %}" class="btn">View Details</a>
+                        <a href="{% url 'play_story' story.id %}" class="btn btn-success">Play Now</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No stories found. {% if search_query or tags_filter %}Try different search terms.{% else %}Check back later!{% endif %}</p>
+    {% endif %}
+</div>
+
+{% if user.is_authenticated and user.profile.is_author %}
+    <div class="card" style="background: #e8f5e9;">
+        <h3>✍️ Author Dashboard</h3>
+        <p>Ready to create your own adventure?</p>
+        <a href="{% url 'create_story' %}" class="btn btn-success">Create New Story</a>
+        <a href="{% url 'my_stories' %}" class="btn btn-secondary">Manage My Stories</a>
+    </div>
+{% endif %}
+
+{% if not user.is_authenticated %}
+    <div class="card" style="background: #fff3e0;">
+        <h3>👤 Join the Community</h3>
+        <p><strong>Register as an Author</strong> to create your own interactive stories!</p>
+        <a href="{% url 'register' %}" class="btn">Register Now</a>
+    </div>
+{% endif %}
+{% endblock %}

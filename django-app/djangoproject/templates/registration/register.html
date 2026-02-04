@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - NAHB{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <h1 class="text-center">📝 Create Account</h1>
+    <p class="text-center">Join NAHB to play stories and create your own adventures!</p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required autofocus>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email (optional):</label>
+            <input type="email" id="email" name="email">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password2">Confirm Password:</label>
+            <input type="password" id="password2" name="password2" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="role">I want to:</label>
+            <select id="role" name="role" required>
+                <option value="reader">Read Stories (Reader)</option>
+                <option value="author">Create Stories (Author)</option>
+            </select>
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                You can change your role later in settings.
+            </small>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">Create Account</button>
+    </form>
+    
+    <div class="text-center" style="margin-top: 1.5rem;">
+        <p>Already have an account? <a href="{% url 'login' %}" style="color: #667eea;">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

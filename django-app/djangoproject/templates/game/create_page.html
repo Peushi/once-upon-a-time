@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Page - {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📄 Create New Page</h1>
+    <p>Story: <strong>{{ story.title }}</strong></p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="text">Page Text:</label>
+            <textarea id="text" name="text" required placeholder="Describe the scene..."></textarea>
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                This is what the player will see when they reach this page.
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="is_ending" name="is_ending">
+                This is an ending page
+            </label>
+        </div>
+        
+        <div class="form-group" id="ending-label-group" style="display: none;">
+            <label for="ending_label">Ending Label (Level 13):</label>
+            <input type="text" id="ending_label" name="ending_label" placeholder="e.g., Victory, Defeat, Discovery">
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                Give this ending a memorable name.
+            </small>
+        </div>
+        
+        
+        <button type="submit" class="btn">Create Page</button>
+        <a href="{% url 'edit_story' story.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('is_ending').addEventListener('change', function() {
+    document.getElementById('ending-label-group').style.display = 
+        this.checked ? 'block' : 'none';
+});
+
+</script>
+{% endblock %}

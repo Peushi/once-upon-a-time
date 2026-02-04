@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}The End - {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card text-center">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem;">🎭 THE END</h1>
+    
+    {% if page.ending_label %}
+        <h2 style="color: #667eea; margin-bottom: 2rem;">{{ page.ending_label }}</h2>
+    {% endif %}
+ <!--   
+    {% if page.illustration %}
+        <div style="margin: 2rem 0;">
+            <img src="{{ page.illustration }}" alt="Ending" 
+                 style="max-width: 100%; max-height: 400px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);">
+        </div>
+    {% endif %}
+ -->   
+    <div style="background: #f8f9fa; padding: 2rem; border-radius: 8px; margin: 2rem 0;">
+        <div style="font-size: 1.2rem; line-height: 1.8;">
+            {{ page.text|linebreaks }}
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem;">
+        <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+            Thank you for playing! Your journey has been recorded.
+        </p>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'play_story' story.id %}?resume=false" class="btn btn-success">Play Again</a>
+            <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">Story Details</a>
+            <a href="{% url 'home' %}" class="btn">Browse More Stories</a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'player_path' play_id %}" class="btn" style="background: #9c27b0;">View Your Path</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Encourage rating 
+{% if user.is_authenticated %}
+    <div class="card" style="background: #e8f5e9;">
+        <h3>⭐ Enjoyed the story?</h3>
+        <p>Share your thoughts by rating this story!</p>
+        <a href="{% url 'story_detail' story.id %}#ratings" class="btn btn-success">Rate & Review</a>
+    </div>
+{% endif %}
+-->
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ story.title }} - NAHB{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <h1>{{ story.title }}</h1>
+            <span class="badge badge-{{ story.status }}">{{ story.status|upper }}</span>
+        </div>
+        <div>
+            {% if can_edit %}
+                <a href="{% url 'edit_story' story.id %}" class="btn">Edit Story</a>
+            {% endif %}
+            {% if can_moderate %}
+                {% if story.status == 'published' %}
+                    <form method="POST" action="{% url 'suspend_story' story.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Suspend this story?')">Suspend</button>
+                    </form>
+                {% elif story.status == 'suspended' %}
+                    <form method="POST" action="{% url 'unsuspend_story' story.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Publish this story?')">Publish</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+    <p style="margin-top: 1rem;">{{ story.description }}</p>
+    
+    {% if story.tags %}
+        <div style="margin: 1rem 0;">
+            <strong>Tags:</strong>
+            {% for tag in story.tags %}
+                <span class="badge" style="background: #e3f2fd; color: #1976d2;">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+<!--    {% if story.illustration %}
+        <div style="margin: 1rem 0;">
+            <img src="{{ story.illustration }}" alt="{{ story.title }}" style="max-width: 100%; border-radius: 8px;">
+        </div>
+    {% endif %}
+-->    
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'play_story' story.id %}" class="btn btn-success" style="font-size: 1.2rem;">▶ Start Playing</a>
+        <a href="{% url 'story_tree' story.id %}" class="btn btn-secondary">View Story Map</a>
+    </div>
+</div>
+
+<!--Ratings & Comments 
+<div class="card">
+    <h2>⭐ Ratings & Reviews</h2>
+    
+    {% if avg_rating %}
+        <div style="font-size: 2rem; margin-bottom: 1rem;">
+            ⭐ {{ avg_rating }} / 5.0
+            <span style="font-size: 1rem; color: #666;">({{ rating_count }} ratings)</span>
+        </div>
+    {% else %}
+        <p>No ratings yet. Be the first to rate this story!</p>
+    {% endif %}
+    
+    {% if user.is_authenticated %}
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h3>Rate This Story</h3>
+            <form method="POST" action="{% url 'rate_story' story.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Your Rating:</label>
+                    <select name="rating" required>
+                        <option value="">Select...</option>
+                        <option value="1" {% if user_rating and user_rating.rating == 1 %}selected{% endif %}>⭐ 1 Star</option>
+                        <option value="2" {% if user_rating and user_rating.rating == 2 %}selected{% endif %}>⭐⭐ 2 Stars</option>
+                        <option value="3" {% if user_rating and user_rating.rating == 3 %}selected{% endif %}>⭐⭐⭐ 3 Stars</option>
+                        <option value="4" {% if user_rating and user_rating.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐ 4 Stars</option>
+                        <option value="5" {% if user_rating and user_rating.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐ 5 Stars</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Comment (optional):</label>
+                    <textarea name="comment">{% if user_rating %}{{ user_rating.comment }}{% endif %}</textarea>
+                </div>
+                <button type="submit" class="btn">{% if user_rating %}Update{% else %}Submit{% endif %} Rating</button>
+                {% if user_rating %}
+                    <a href="{% url 'delete_rating' user_rating.id %}" class="btn btn-danger" 
+                       onclick="return confirm('Delete your rating?')">Delete Rating</a>
+                {% endif %}
+            </form>
+        </div>
+    {% endif %}
+--> 
+    <!-- Recent Ratings 
+    {% if ratings %}
+        <h3>Recent Reviews</h3>
+        {% for rating in ratings %}
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>{{ rating.user.username }}</strong>
+                    <span>{% for i in "12345" %}{% if forloop.counter <= rating.rating %}⭐{% endif %}{% endfor %}</span>
+                </div>
+                {% if rating.comment %}
+                    <p style="margin-top: 0.5rem;">{{ rating.comment }}</p>
+                {% endif %}
+                <small style="color: #666;">{{ rating.created_at|date:"M d, Y" }}</small>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+-->
+
+<div class="card">
+    <h2>📊 Statistics</h2>
+    
+    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+        <h3>Total Plays: {{ total_plays }}</h3>
+    </div>
+    
+    {% if ending_stats %}
+        <h3>Ending Distribution</h3>
+        {% for ending in ending_stats %}
+            <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span><strong>{{ ending.ending_label|default:"Ending" }} (Page {{ ending.ending_page_id }})</strong></span>
+                    <span>{{ ending.percentage }}% ({{ ending.count }} plays)</span>
+                </div>
+                <div style="background: #4CAF50; height: 10px; border-radius: 5px; margin-top: 0.5rem; width: {{ ending.percentage }}%;"></div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!--Report Button 
+{% if user.is_authenticated %}
+    <div class="card" style="background: #ffebee;">
+        <h3>🚩 Report Issue</h3>
+        <p>Found inappropriate content or a problem with this story?</p>
+        <a href="{% url 'report_story' story.id %}" class="btn btn-danger">Report This Story</a>
+    </div>
+{% endif %}
+-->
+
+<div class="text-center">
+    <a href="{% url 'home' %}" class="btn btn-secondary">← Back to Stories</a>
+</div>
+{% endblock %}

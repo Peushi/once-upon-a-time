@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Page - {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📝 Edit Page</h1>
+    <p>Story: <strong>{{ story.title }}</strong></p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="text">Page Text: <span style="color: #f44336;">*</span></label>
+            <textarea id="text" 
+                      name="text" 
+                      required 
+                      autofocus
+                      style="min-height: 200px;">{{ page.text }}</textarea>
+            <small style="display: block; margin-top: 0.5rem; color: #666;">
+                This is what players will see when they reach this page. Be descriptive!
+            </small>
+        </div>
+        
+        <!-- Ending Options -->
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h3 style="margin-top: 0;">🏁 Ending Settings</h3>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" 
+                           id="is_ending" 
+                           name="is_ending"
+                           {% if page.is_ending %}checked{% endif %}
+                           onchange="toggleEndingLabel()"
+                           style="margin-right: 0.5rem; width: 20px; height: 20px;">
+                    <span style="font-weight: 600;">This is an ending page</span>
+                </label>
+                <small style="display: block; margin-top: 0.5rem; color: #666; margin-left: 28px;">
+                    Check this if this page ends the story (no more choices)
+                </small>
+            </div>
+            
+            <div class="form-group" id="ending-label-group" style="{% if not page.is_ending %}display: none;{% endif %}">
+                <label for="ending_label">Ending Label (Optional):</label>
+                <input type="text" 
+                       id="ending_label" 
+                       name="ending_label"
+                       value="{{ page.ending_label|default:'' }}"
+                       placeholder="e.g., Victory, Defeat, Discovery, Escape">
+                <small style="display: block; margin-top: 0.5rem; color: #666;">
+                    Give this ending a memorable name like "Victory", "Tragic End", etc.
+                </small>
+            </div>
+        </div>
+
+        <!-- Current Choices Display -->
+        {% if page.choices %}
+            <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <h3 style="margin-top: 0; color: #1976d2;">🔀 Current Choices from This Page:</h3>
+                <p style="color: #666; font-size: 0.9rem;">
+                    Note: You can't edit choices here. Delete this page's choices from the story editor if needed.
+                </p>
+                <ul style="margin: 1rem 0 0 1.5rem; color: #555;">
+                    {% for choice in page.choices %}
+                        <li style="margin-bottom: 0.5rem;">
+                            <strong>{{ choice.text }}</strong> → Page {{ choice.next_page_id }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if page.is_ending %}
+            <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                <strong>⚠️ Note:</strong>
+                <p style="margin: 0.5rem 0 0 0; color: #555;">
+                    Ending pages should not have choices. If you uncheck "This is an ending page", 
+                    you'll need to add choices from the story editor.
+                </p>
+            </div>
+        {% endif %}
+
+        <div style="background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <strong>💡 Writing Tips:</strong>
+            <ul style="margin: 0.5rem 0 0 1.5rem; color: #555;">
+                <li>Be descriptive - help players visualize the scene</li>
+                <li>Build tension and excitement</li>
+                <li>For endings: Make them satisfying and conclusive</li>
+                <li>For regular pages: Set up the choices that follow</li>
+            </ul>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success" style="font-size: 1.1rem;">
+                💾 Save Changes
+            </button>
+            <a href="{% url 'edit_story' story.id %}" class="btn btn-secondary">
+                Cancel
+            </a>
+            <a href="{% url 'delete_page' page.id %}" 
+               class="btn btn-danger"
+               onclick="return confirm('Delete this page? This will also delete all choices from this page!')">
+                🗑️ Delete Page
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Page Info -->
+<div class="card" style="background: #f8f9fa;">
+    <h3>📊 Page Information</h3>
+    <div class="grid grid-2">
+        <div>
+            <strong>Page ID:</strong> {{ page.id }}
+        </div>
+        <div>
+            <strong>Story ID:</strong> {{ page.story_id }}
+        </div>
+        <div>
+            <strong>Is Ending:</strong> 
+            {% if page.is_ending %}
+                <span style="color: #4CAF50;">✓ Yes</span>
+            {% else %}
+                <span style="color: #999;">✗ No</span>
+            {% endif %}
+        </div>
+        <div>
+            <strong>Choices:</strong> {{ page.choices|length }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleEndingLabel() {
+    const isEnding = document.getElementById('is_ending').checked;
+    const labelGroup = document.getElementById('ending-label-group');
+    labelGroup.style.display = isEnding ? 'block' : 'none';
+}
+</script>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -29,7 +29,7 @@ def register(request):
         
         user = User.objects.create_user(username=username, email=email, password=password)
         UserProfile.objects.create(user=user, role=role)
-        login(request, user)
+        auth_login(request, user)
         messages.success(request, f"Welcome, {username}! Your account has been created")
         return redirect('home')
     return render(request, 'registration/register.html')

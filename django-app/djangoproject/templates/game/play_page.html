@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Playing: {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>{{ story.title }}</h2>
+        <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">Exit Story</a>
+    </div>
+<!--  
+    {% if page.illustration %}
+        <div style="margin: 1rem 0;">
+            <img src="{{ page.illustration }}" alt="Scene illustration" 
+                 style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+        </div>
+    {% endif %}
+--> 
+    
+    <div style="background: #f8f9fa; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="font-size: 1.2rem; line-height: 1.8;">
+            {{ page.text|linebreaks }}
+        </div>
+    </div>
+    
+    {% if choices %}
+        <div style="margin-top: 2rem;">
+            <h3>What do you do?</h3>
+            <div class="grid">
+                {% for choice in choices %}
+                    <a href="{% url 'play_page' story.id choice.next_page_id %}" 
+                       class="card" 
+                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                              color: white; 
+                              text-decoration: none; 
+                              transition: transform 0.3s, box-shadow 0.3s;
+                              cursor: pointer;">
+                        <h4 style="color: white;">→ {{ choice.text }}</h4>
+                        {% if choice.requires_condition %}
+                            <small style="opacity: 0.8;">Conditional choice</small>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!--  Auto-save indicator -->
+<div class="text-center" style="color: white; margin-top: 1rem;">
+    <small>💾 Progress automatically saved</small>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}
