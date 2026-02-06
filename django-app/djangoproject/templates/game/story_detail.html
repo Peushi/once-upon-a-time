@@ -31,10 +31,10 @@
     
     <p style="margin-top: 1rem;">{{ story.description }}</p>
     
-    {% if story.tags %}
+    {% if story.tags_list %}
         <div style="margin: 1rem 0;">
             <strong>Tags:</strong>
-            {% for tag in story.tags %}
+            {% for tag in story.tags_list %}
                 <span class="badge" style="background: #e3f2fd; color: #1976d2;">{{ tag }}</span>
             {% endfor %}
         </div>

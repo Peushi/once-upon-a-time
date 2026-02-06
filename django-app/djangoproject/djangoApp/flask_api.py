@@ -64,13 +64,7 @@ class FlaskAPIClient:
             data = self._handle_response(response)
             if not data:
                 return None
-            # Flask might wrap the page
-            if isinstance(data, dict) and "page" in data:
-                return data["page"]
-            if isinstance(data, dict) and "start_page" in data:
-                return data["start_page"]
             return data
-
         except Exception as e:
             print(f"Error fecthing start of story {story_id}: {e}")
             return None
@@ -96,7 +90,7 @@ class FlaskAPIClient:
                 "description": description,
                 "status": status,
                 "author_id": author_id,
-                "tags": tags or [],
+                "tags": tags if tags else [],
             }
             response = requests.post(
                 f"{self.url}/stories",

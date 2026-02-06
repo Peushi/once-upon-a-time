@@ -8,6 +8,14 @@ from .flask_api import flask_api
 from .models import Play, PlaySession, UserProfile
 
 
+def convert_tags_to_list(story):
+    """Helper function to convert tags string to list"""
+    if story and story.get('tags'):
+        story['tags_list'] = [t.strip() for t in story['tags'].split(',') if t.strip()]
+    else:
+        story['tags_list'] = []
+    return story
+
 def register(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -49,6 +57,8 @@ def my_stories(request):
         return redirect("home")
     all_stories = flask_api.get_stories()
     my_stories = [s for s in all_stories if s.get("author_id") == request.user.id]
+    for story in my_stories:
+        convert_tags_to_list(story)
     context = {"stories": my_stories}
     return render(request, "game/my_stories.html", context)
 
@@ -68,12 +78,15 @@ def create_story(request):
         if not title:
             messages.error(request, "Title is required")
             return render(request, "game/create_story.html")
+        
+        tags_list = [t.strip() for t in tags.split(",")] if tags else []
+
         story = flask_api.create_story(
             title=title,
             description=description,
             status="draft",
             author_id=request.user.id,
-            tags=tags.split(",") if tags else [],
+            tags=tags_list
         )
         if story:
             messages.success(request, "Story created successfully!")
@@ -102,12 +115,15 @@ def edit_story(request, story_id):
             description = request.POST.get("description", "")
             tags = request.POST.get("tags", "")
             status = request.POST.get("status", "draft")
+
+            tags_list = [t.strip() for t in tags.split(",") if t.strip()]
+
             updated_story = flask_api.update_story(
                 story_id,
                 title=title,
                 description=description,
                 status=status,
-                tags=tags.split(",") if tags else [],
+                tags=tags_list,
             )
             if updated_story:
                 messages.success(request, "Story has been updated")
@@ -121,6 +137,7 @@ def edit_story(request, story_id):
                 messages.success(request, "Start page updated")
                 return redirect("edit_story", story_id=story_id)
     story = flask_api.get_story(story_id, include_pages=True)
+    convert_tags_to_list(story)
     context = {"story": story}
     return render(request, "game/edit_story.html", context)
 
@@ -140,6 +157,7 @@ def delete_story(request, story_id):
         else:
             messages.error(request, "Faile to delete story")
         return redirect("my_stories")
+    convert_tags_to_list(story)
     return render(request, "game/delete_story_confirm.html", {"story": story})
 
 

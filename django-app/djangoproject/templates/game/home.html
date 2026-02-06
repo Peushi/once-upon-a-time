@@ -42,9 +42,9 @@
                     <p>{{ story.description|truncatewords:30 }}</p>
                     
                     <!-- Level 13: Tags -->
-                    {% if story.tags %}
+                    {% if story.tags_list %}
                         <div style="margin: 0.5rem 0;">
-                            {% for tag in story.tags %}
+                            {% for tag in story.tags_list %}
                                 <span class="badge" style="background: #e3f2fd; color: #1976d2;">{{ tag }}</span>
                             {% endfor %}
                         </div>

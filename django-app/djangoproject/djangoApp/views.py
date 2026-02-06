@@ -5,6 +5,15 @@ from .models import  Play, PlaySession, UserProfile
 from django.contrib.auth.models import User
 from django.db.models import Count
 
+
+def convert_tags_to_list(story):
+    """Helper function to convert tags string to list"""
+    if story and story.get('tags'):
+        story['tags_list'] = [t.strip() for t in story['tags'].split(',') if t.strip()]
+    else:
+        story['tags_list'] = []
+    return story
+
 #home and browsing
 def home(request):
     #get filter
@@ -17,6 +26,9 @@ def home(request):
         search=search_query if search_query else None,
         tags=tags_filter if tags_filter else None
     )
+    
+    for story in stories:
+        convert_tags_to_list(story)
 
     #add here the ratings
     
@@ -30,6 +42,8 @@ def story_detail(request, story_id):
     if not story:
         messages.error(request, 'Story not found')
         return redirect('home')
+    
+    convert_tags_to_list(story)
     
     # check if user can view 
     if story['status'] == 'draft':
@@ -108,7 +122,7 @@ def play_story(request, story_id):
         messages.error(request, 'Story has no start page set yet.')
         return redirect('story_detail', story_id=story_id)
 
-    start_page_id = start_page['id']
+    start_page_id = start_page['page_id']
 
     # create/update the session
     if saved_session:

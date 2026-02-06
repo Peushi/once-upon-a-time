@@ -45,9 +45,9 @@
                 </div>
                 
                 <!-- Tags Display -->
-                {% if story.tags %}
+                {% if story.tags_list %}
                     <div style="margin-bottom: 1rem;">
-                        {% for tag in story.tags %}
+                        {% for tag in story.tags_list %}
                             <span class="badge" style="background: #e3f2fd; color: #1976d2; margin-right: 0.25rem;">
                                 {{ tag }}
                             </span>
