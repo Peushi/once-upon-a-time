@@ -91,7 +91,7 @@
                 <div class="card" style="background: {% if page.is_ending %}#ffebee{% else %}#f8f9fa{% endif %};">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="flex: 1;">
-                            <strong>Page {{ page.id }}</strong>
+                            <strong>Page {{ forloop.counter }}</strong>
                             {% if page.id == story.start_page_id %}
                                 <span class="badge badge-success">START</span>
                             {% endif %}
