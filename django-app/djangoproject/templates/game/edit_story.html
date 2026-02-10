@@ -54,7 +54,7 @@
 <div class="card">
     <h2>Start Page</h2>
     {% if story.start_page_id %}
-        <p>Current start page: <strong>Page {{ story.start_page_id }}</strong></p>
+        <p>Current start page</p>
     {% else %}
         <p style="color: #f44336;">⚠️ No start page set! The story cannot be played yet.</p>
     {% endif %}
@@ -68,7 +68,7 @@
                 <select id="start_page_id" name="start_page_id">
                     {% for page in story.pages %}
                         <option value="{{ page.id }}" {% if page.id == story.start_page_id %}selected{% endif %}>
-                            Page {{ page.id }}: {{ page.text|truncatewords:10 }}
+                            Page {{ forloop.counter }}: {{ page.text|truncatewords:10 }}
                         </option>
                     {% endfor %}
                 </select>
@@ -91,7 +91,7 @@
                 <div class="card" style="background: {% if page.is_ending %}#ffebee{% else %}#f8f9fa{% endif %};">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="flex: 1;">
-                            <strong>Page {{ page.id }}</strong>
+                            <strong>Page {{ forloop.counter }}</strong>
                             {% if page.id == story.start_page_id %}
                                 <span class="badge badge-success">START</span>
                             {% endif %}
@@ -114,7 +114,11 @@
                         <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
                             {% for choice in page.choices %}
                                 <li>
-                                    {{ choice.text|truncatewords:10 }} → Page {{ choice.next_page_id }}
+                                    {{ choice.text|truncatewords:10 }} → {% for p in story.pages %}
+                                                                            {% if p.id == choice.next_page_id %}
+                                                                                Page {{ forloop.counter }}
+                                                                            {% endif %}
+                                                                        {% endfor %}
                                     <form method="POST" action="{% url 'delete_choice' choice.id %}" style="display: inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="page_id" value="{{ page.id }}">

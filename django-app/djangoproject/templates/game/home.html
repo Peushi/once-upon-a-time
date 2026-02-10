@@ -51,12 +51,12 @@
                     {% endif %}
                     
 
-<!--                   {% if story.avg_rating %}
+                 {% if story.avg_rating %}
                         <div style="margin: 0.5rem 0;">
                             ⭐ {{ story.avg_rating|floatformat:1 }} / 5.0 ({{ story.rating_count }} ratings)
                         </div>
                     {% endif %}
---> 
+
                     
                     <div style="margin-top: 1rem;">
                         <a href="{% url 'story_detail' story.id %}" class="btn">View Details</a>

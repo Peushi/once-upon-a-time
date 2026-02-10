@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Story Map: {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📊 Story Map: {{ story.title }}</h1>
+    <p>Visual representation of the story structure</p>
+    <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">← Back to Story</a>
+</div>
+
+<div class="card">
+    <div id="story-graph" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 8px;"></div>
+</div>
+
+<div class="card">
+    <h3>Legend</h3>
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <div><span style="display: inline-block; width: 20px; height: 20px; background: #4CAF50; border-radius: 50%;"></span> Start Page</div>
+        <div><span style="display: inline-block; width: 20px; height: 20px; background: #2196F3; border-radius: 50%;"></span> Regular Page</div>
+        <div><span style="display: inline-block; width: 20px; height: 20px; background: #f44336; border-radius: 50%;"></span> Ending</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tree data from Django (passed as JSON)
+const treeData = {{ tree_data|safe }};
+
+// Simple visualization using HTML/CSS (basic implementation)
+// For production, use D3.js or vis.js
+
+function renderGraph() {
+    const container = document.getElementById('story-graph');
+    const nodes = treeData.nodes;
+    const edges = treeData.edges;
+    
+    let html = '<div style="padding: 2rem; overflow: auto;">';
+    
+    // Create a simple vertical layout
+    const nodeMap = new Map();
+    nodes.forEach((node, idx) => {
+        nodeMap.set(node.id, node);
+    });
+    
+    // Group by levels (simple BFS)
+    const levels = [];
+    const visited = new Set();
+    const startNode = nodes.find(n => n.is_start);
+    
+    if (startNode) {
+        let currentLevel = [startNode];
+        
+        while (currentLevel.length > 0) {
+            levels.push([...currentLevel]);
+            const nextLevel = [];
+            
+            for (const node of currentLevel) {
+                visited.add(node.id);
+                const outgoingEdges = edges.filter(e => e.from === node.id);
+                
+                for (const edge of outgoingEdges) {
+                    const targetNode = nodeMap.get(edge.to);
+                    if (targetNode && !visited.has(targetNode.id)) {
+                        nextLevel.push(targetNode);
+                    }
+                }
+            }
+            
+            currentLevel = nextLevel;
+        }
+    }
+    
+    // Add unvisited nodes
+    for (const node of nodes) {
+        if (!visited.has(node.id)) {
+            levels.push([node]);
+        }
+    }
+    
+    // Render levels
+    for (let i = 0; i < levels.length; i++) {
+        html += `<div style="margin-bottom: 3rem;">`;
+        html += `<h4 style="text-align: center; color: #666;">Level ${i + 1}</h4>`;
+        html += `<div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">`;
+        
+        for (const node of levels[i]) {
+            const color = node.is_start ? '#4CAF50' : node.is_ending ? '#f44336' : '#2196F3';
+            html += `
+                <div style="
+                    background: ${color}; 
+                    color: white; 
+                    padding: 1rem; 
+                    border-radius: 8px; 
+                    min-width: 150px;
+                    max-width: 200px;
+                    text-align: center;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                ">
+                    <strong>Page ${node.id}</strong><br>
+                    <small>${node.text}</small>
+                    ${node.is_start ? '<div style="margin-top: 0.5rem;">⭐ START</div>' : ''}
+                    ${node.ending_label ? `<div style="margin-top: 0.5rem;">🏁 ${node.ending_label}</div>` : ''}
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        // Show connections
+        if (i < levels.length - 1) {
+            html += `<div style="text-align: center; padding: 1rem; color: #666;">↓ Choices ↓</div>`;
+        }
+        
+        html += `</div>`;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+renderGraph();
+</script>
+{% endblock %}

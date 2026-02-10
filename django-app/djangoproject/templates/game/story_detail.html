@@ -52,7 +52,7 @@
     </div>
 </div>
 
-<!--Ratings & Comments 
+<!--Ratings & Comments -->
 <div class="card">
     <h2>⭐ Ratings & Reviews</h2>
     
@@ -93,8 +93,8 @@
             </form>
         </div>
     {% endif %}
---> 
-    <!-- Recent Ratings 
+ 
+    <!-- Recent Ratings -->
     {% if ratings %}
         <h3>Recent Reviews</h3>
         {% for rating in ratings %}
@@ -111,7 +111,7 @@
         {% endfor %}
     {% endif %}
 </div>
--->
+
 
 <div class="card">
     <h2>📊 Statistics</h2>
@@ -134,7 +134,7 @@
     {% endif %}
 </div>
 
-<!--Report Button 
+<!--Report Button -->
 {% if user.is_authenticated %}
     <div class="card" style="background: #ffebee;">
         <h3>🚩 Report Issue</h3>
@@ -142,7 +142,7 @@
         <a href="{% url 'report_story' story.id %}" class="btn btn-danger">Report This Story</a>
     </div>
 {% endif %}
--->
+
 
 <div class="text-center">
     <a href="{% url 'home' %}" class="btn btn-secondary">← Back to Stories</a>

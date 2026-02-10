@@ -77,7 +77,17 @@ class FlaskAPIClient:
             print(f"Error fecthing page {page_id}: {e}")
             return None
 
-    # decide whether you will do stroy tree.
+    def get_story_tree(self, story_id: int):
+
+        try:
+            response = requests.get(
+                f"{self.base_url}/stories/{story_id}/tree",
+                timeout=10
+            )
+            return self._handle_response(response)
+        except Exception as e:
+            print(f"Error fetching story tree {story_id}: {e}")
+            return None
 
     # writing endpoints
 

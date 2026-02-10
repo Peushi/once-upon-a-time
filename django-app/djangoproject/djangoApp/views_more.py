@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Play
+from .models import Play, Rating
 from .flask_api import flask_api
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Avg
@@ -60,9 +60,13 @@ def api_story_stats(request, story_id):
             'count': ending['count'],
             'percentage': round(percentage, 1)
         })
-    
+    ratings = Rating.objects.filter(story_id=story_id)
+    avg_rating = ratings.aggregate(Avg('rating'))['rating__avg']
+
     return JsonResponse({
         'story_id': story_id,
         'total_plays': total_plays,
         'ending_stats': ending_stats,
+        'avg_rating': round(avg_rating, 2) if avg_rating else None,
+        'rating_count': ratings.count()
     })

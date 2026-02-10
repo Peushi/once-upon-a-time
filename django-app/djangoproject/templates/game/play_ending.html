@@ -40,7 +40,7 @@
     </div>
 </div>
 
-<!-- Encourage rating 
+<!-- Encourage rating -->
 {% if user.is_authenticated %}
     <div class="card" style="background: #e8f5e9;">
         <h3>⭐ Enjoyed the story?</h3>
@@ -48,5 +48,5 @@
         <a href="{% url 'story_detail' story.id %}#ratings" class="btn btn-success">Rate & Review</a>
     </div>
 {% endif %}
--->
+
 {% endblock %}

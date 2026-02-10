@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from .flask_api import flask_api
-from .models import Play, PlaySession, UserProfile
+from .models import UserProfile, Rating, Report
 
 
 def convert_tags_to_list(story):
@@ -272,7 +272,7 @@ def create_choice(request, page_id):
         )
         if choice:
             messages.success(request, "Choice created successfully")
-            return redirect("create_choice", page_id=page["id"])
+            return redirect("edit_story", story_id=story["id"])
 
         else:
             messages.error(request, "Failed to create choice")
@@ -326,3 +326,32 @@ def unsuspend_story(request, story_id):
 def story_tree(request, story_id):
     messages.info(request, "Story tree is not implemented yet.")
     return redirect('edit_story', story_id=story_id)
+
+
+def rate_story(request, story_id):
+    messages.info(request, "Story ratings feature coming soon!")
+    return redirect('story_detail', story_id=story_id)
+
+def delete_rating(request, rating_id):
+    messages.info(request, "Story ratings feature coming soon!")
+    return redirect('home')
+
+def report_story(request, story_id):
+    messages.info(request, "Story reporting feature coming soon!")
+    return redirect('story_detail', story_id=story_id)
+
+@login_required
+def reports_list(request):
+    if not request.user.is_staff:
+        messages.error(request, "Admin access required")
+        return redirect('home')
+    messages.info(request, "Reports feature coming soon!")
+    return redirect('home')
+
+@login_required
+def update_report(request, report_id):
+    if not request.user.is_staff:
+        messages.error(request, "Admin access required")
+        return redirect('home')
+    messages.info(request, "Reports feature coming soon!")
+    return redirect('home')
