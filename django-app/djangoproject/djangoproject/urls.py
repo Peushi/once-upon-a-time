@@ -53,6 +53,13 @@ urlpatterns = [
     path('suspend-story/<int:story_id>/', views_author.suspend_story, name='suspend_story'),
     path('unsuspend-story/<int:story_id>/', views_author.unsuspend_story, name='unsuspend_story'), 
 
+    path('rate-story/<int:story_id>/', views_author.rate_story, name='rate_story'),
+    path('delete-rating/<int:rating_id>/', views_author.delete_rating, name='delete_rating'),
+    
+    path('report-story/<int:story_id>/', views_author.report_story, name='report_story'),
+    path('reports/', views_author.reports_list, name='reports_list'),
+    path('update-report/<int:report_id>/', views_author.update_report, name='update_report'),
+
     path('story-tree/<int:story_id>/', views_author.story_tree, name='story_tree'),
  
 ]

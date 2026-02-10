@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from.flask_api import flask_api
-from .models import  Play, PlaySession, UserProfile
+from .models import  Play, PlaySession, UserProfile, Rating, Report
 from django.contrib.auth.models import User
-from django.db.models import Count
+from django.db.models import Count, Avg
 
 
 def convert_tags_to_list(story):
@@ -26,11 +26,16 @@ def home(request):
         search=search_query if search_query else None,
         tags=tags_filter if tags_filter else None
     )
-    
-    for story in stories:
-        convert_tags_to_list(story)
-
-    #add here the ratings
+    if stories:
+        for story in stories:
+            convert_tags_to_list(story)
+            ratings = Rating.objects.filter(story_id=story['id'])
+            if ratings.exists():
+                story['avg_rating'] = ratings.aggregate(Avg('rating'))['rating__avg']
+                story['rating_count'] = ratings.count()
+            else:
+                story['avg_rating'] = None
+                story['rating_count'] = 0
     
     context = {'stories': stories, 
                'search_query': search_query,
@@ -69,7 +74,11 @@ def story_detail(request, story_id):
                              'count': ending['count'], 
                              'percentage': round(percentage, 1)})
         
-    # ratings
+    ratings = Rating.objects.filter(story_id=story_id).select_related('user')
+    avg_rating = ratings.aggregate(Avg('rating'))['rating__avg']
+    user_rating = None
+    if request.user.is_authenticated:
+        user_rating = ratings.filter(user=request.user).first()
 
     can_edit = False
     if request.user.is_authenticated:
@@ -82,10 +91,10 @@ def story_detail(request, story_id):
         'story': story,
         'total_plays': total_plays,
         'ending_stats': ending_stats,
-        #'ratings': ratings, 
-        #'avg_rating':round(avg_rating, 1) if avg_rating else None,
-        #'rating_count': ratings.count(),
-        #'user_rating': user_rating,
+        'ratings': ratings, 
+        'avg_rating':round(avg_rating, 1) if avg_rating else None,
+        'rating_count': ratings.count(),
+        'user_rating': user_rating,
         'can_edit': can_edit,
         'can_moderate': can_moderate
         }

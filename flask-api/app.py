@@ -100,16 +100,27 @@ def create_app():
 
         if include_pages:
             pages = Page.query.filter_by(story_id=s.id).order_by(Page.id.asc()).all()
-            payload["pages"] = [
-                {
+            payload["pages"] = []
+    
+            for page_num, p in enumerate(pages, start=1):
+                choices = Choice.query.filter_by(page_id=p.id).order_by(Choice.id.asc()).all()
+                
+                payload["pages"].append({
                     "id": p.id,
+                    "page_number": page_num, 
                     "story_id": p.story_id,
                     "text": p.text,
                     "is_ending": p.is_ending,
                     "ending_label": p.ending_label,
-                }
-                for p in pages
-            ]
+                    "choices": [ 
+                        {
+                            "id": c.id,
+                            "text": c.text,
+                            "next_page_id": c.next_page_id
+                        }
+                        for c in choices
+                    ]
+                })
 
         return jsonify(payload)
 
