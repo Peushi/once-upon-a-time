@@ -10,116 +10,177 @@
 </div>
 
 <div class="card">
-    <div id="story-graph" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 8px;"></div>
+    <div id="story-graph"
+         style="width: 100%; height: 1200px; border-radius: 18px; background: #fdeff2; overflow: hidden;">
+    </div>
 </div>
 
 <div class="card">
     <h3>Legend</h3>
-    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-        <div><span style="display: inline-block; width: 20px; height: 20px; background: #4CAF50; border-radius: 50%;"></span> Start Page</div>
-        <div><span style="display: inline-block; width: 20px; height: 20px; background: #2196F3; border-radius: 50%;"></span> Regular Page</div>
-        <div><span style="display: inline-block; width: 20px; height: 20px; background: #f44336; border-radius: 50%;"></span> Ending</div>
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
+        <div>
+            <span style="display: inline-block; width: 18px; height: 18px; background: #FAD7C6; border: 3px solid #FF6FA3; border-radius: 10px;"></span>
+            Start Page
+        </div>
+        <div>
+            <span style="display: inline-block; width: 18px; height: 18px; background: #F8B8CF; border: 3px solid #ffffff; border-radius: 10px;"></span>
+            Regular Page
+        </div>
+        <div>
+            <span style="display: inline-block; width: 18px; height: 18px; background: #CBB7E8; border: 3px solid #B39DDB; border-radius: 10px;"></span>
+            Ending
+        </div>
+        <div>
+            <span style="display: inline-block; width: 34px; height: 0; border-top: 3px dashed #C8C1FF;"></span>
+            Choice link
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
 <script>
-// Tree data from Django (passed as JSON)
 const treeData = {{ tree_data|safe }};
+const container = document.getElementById("story-graph");
 
-// Simple visualization using HTML/CSS (basic implementation)
-// For production, use D3.js or vis.js
+//Nodes
+const nodes = treeData.nodes.map(n => {
+    const isStart = !!n.is_start;
+    const isEnding = !!n.is_ending;
 
-function renderGraph() {
-    const container = document.getElementById('story-graph');
-    const nodes = treeData.nodes;
-    const edges = treeData.edges;
-    
-    let html = '<div style="padding: 2rem; overflow: auto;">';
-    
-    // Create a simple vertical layout
-    const nodeMap = new Map();
-    nodes.forEach((node, idx) => {
-        nodeMap.set(node.id, node);
+    const bg = isStart ? "#FAD7C6" : (isEnding ? "#CBB7E8" : "#F8B8CF");
+    const border = isStart ? "#FF6FA3" : (isEnding ? "#B39DDB" : "#FFFFFF");
+
+    // actual page number
+    const title = `Page ${n.page_number ?? n.id}`;
+    const subtitle = isStart
+        ? "The Beginning"
+        : (n.ending_label ? n.ending_label : "The Choice");
+
+    const iconLine = isStart ? "★" : (isEnding ? "🏁" : "✨");
+
+    return {
+        id: n.id,
+        label: `${title}\n${subtitle}\n${iconLine}`,
+        shape: "box",
+        margin: 20,
+        widthConstraint: { minimum: 230, maximum: 320 },
+        shapeProperties: { borderRadius: 28 },
+
+        color: {
+            background: bg,
+            border: border,
+            highlight: { background: bg, border: border },
+            hover: { background: bg, border: border }
+        },
+
+        font: {
+            color: "#FFFFFF",
+            face: "Arial",
+            multi: true,
+            size: 22
+        },
+
+        shadow: {
+            enabled: true,
+            size: 26,
+            x: 0,
+            y: 12
+        },
+
+        borderWidth: isStart ? 6 : 3
+    };
+});
+
+//Edges 
+const edges = treeData.edges.map(e => ({
+    from: e.from,
+    to: e.to,
+
+    dashes: [10, 10],
+    smooth: { enabled: true, type: "cubicBezier", roundness: 0.75 }, 
+    color: { color: "#C8C1FF", opacity: 0.65 },
+    width: 3,
+
+    arrows: { to: { enabled: false } },
+
+    label: (e.text && e.text.length > 18) ? (e.text.slice(0, 16) + "…") : (e.text || "CHOICE"),
+    font: {
+        size: 14,
+        color: "#C8C1FF",
+        align: "middle"
+    }
+}));
+
+//Force levels from start 
+const startNode = treeData.nodes.find(n => n.is_start);
+if (startNode) {
+    const startId = startNode.id;
+
+    const adj = new Map();
+    treeData.edges.forEach(e => {
+        if (!adj.has(e.from)) adj.set(e.from, []);
+        adj.get(e.from).push(e.to);
     });
-    
-    // Group by levels (simple BFS)
-    const levels = [];
-    const visited = new Set();
-    const startNode = nodes.find(n => n.is_start);
-    
-    if (startNode) {
-        let currentLevel = [startNode];
-        
-        while (currentLevel.length > 0) {
-            levels.push([...currentLevel]);
-            const nextLevel = [];
-            
-            for (const node of currentLevel) {
-                visited.add(node.id);
-                const outgoingEdges = edges.filter(e => e.from === node.id);
-                
-                for (const edge of outgoingEdges) {
-                    const targetNode = nodeMap.get(edge.to);
-                    if (targetNode && !visited.has(targetNode.id)) {
-                        nextLevel.push(targetNode);
-                    }
-                }
+
+    const level = new Map();
+    const q = [startId];
+    level.set(startId, 0);
+
+    while (q.length) {
+        const cur = q.shift();
+        const nexts = adj.get(cur) || [];
+        for (const nxt of nexts) {
+            if (!level.has(nxt)) {
+                level.set(nxt, level.get(cur) + 1);
+                q.push(nxt);
             }
-            
-            currentLevel = nextLevel;
         }
     }
-    
-    // Add unvisited nodes
-    for (const node of nodes) {
-        if (!visited.has(node.id)) {
-            levels.push([node]);
-        }
-    }
-    
-    // Render levels
-    for (let i = 0; i < levels.length; i++) {
-        html += `<div style="margin-bottom: 3rem;">`;
-        html += `<h4 style="text-align: center; color: #666;">Level ${i + 1}</h4>`;
-        html += `<div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">`;
-        
-        for (const node of levels[i]) {
-            const color = node.is_start ? '#4CAF50' : node.is_ending ? '#f44336' : '#2196F3';
-            html += `
-                <div style="
-                    background: ${color}; 
-                    color: white; 
-                    padding: 1rem; 
-                    border-radius: 8px; 
-                    min-width: 150px;
-                    max-width: 200px;
-                    text-align: center;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                ">
-                    <strong>Page ${node.id}</strong><br>
-                    <small>${node.text}</small>
-                    ${node.is_start ? '<div style="margin-top: 0.5rem;">⭐ START</div>' : ''}
-                    ${node.ending_label ? `<div style="margin-top: 0.5rem;">🏁 ${node.ending_label}</div>` : ''}
-                </div>
-            `;
-        }
-        
-        html += `</div>`;
-        
-        // Show connections
-        if (i < levels.length - 1) {
-            html += `<div style="text-align: center; padding: 1rem; color: #666;">↓ Choices ↓</div>`;
-        }
-        
-        html += `</div>`;
-    }
-    
-    html += '</div>';
-    container.innerHTML = html;
+
+    nodes.forEach(n => {
+        if (level.has(n.id)) n.level = level.get(n.id);
+    });
 }
 
-renderGraph();
+const data = {
+    nodes: new vis.DataSet(nodes),
+    edges: new vis.DataSet(edges)
+};
+
+//Layout 
+const options = {
+    physics: false,
+    interaction: { dragNodes: true, dragView: true, zoomView: true },
+    layout: {
+        hierarchical: {
+            enabled: true,
+            direction: "UD",
+            sortMethod: "directed",
+            shakeTowards: "roots",
+            parentCentralization: true,
+
+            // spacing
+            levelSeparation: 330,
+            nodeSpacing: 360,
+            treeSpacing: 420,
+
+            blockShifting: true,
+            edgeMinimization: false
+        }
+    },
+    nodes: { chosen: false },
+    edges: { chosen: false }
+};
+
+const network = new vis.Network(container, data, options);
+
+// Frame nicely
+setTimeout(() => {
+    network.fit({ animation: { duration: 600 } });
+    network.moveTo({ scale: 0.85 });
+}, 50);
 </script>
 {% endblock %}

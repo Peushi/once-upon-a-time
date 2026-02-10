@@ -61,5 +61,6 @@ urlpatterns = [
     path('update-report/<int:report_id>/', views_author.update_report, name='update_report'),
 
     path('story-tree/<int:story_id>/', views_author.story_tree, name='story_tree'),
+    path("stories/<int:story_id>/tree/", views_author.story_tree, name="story_tree"),
  
 ]

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from .flask_api import flask_api
 from .models import UserProfile, Rating, Report
+import json
 
 
 def convert_tags_to_list(story):
@@ -330,8 +331,58 @@ def unsuspend_story(request, story_id):
 
 @login_required
 def story_tree(request, story_id):
-    messages.info(request, "Story tree is not implemented yet.")
-    return redirect("edit_story", story_id=story_id)
+    story = flask_api.get_story(story_id, include_pages=True)
+    if not story:
+        messages.error(request, "Story not found")
+        return redirect("my_stories")
+
+    # permission check
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if not profile.is_admin() and story.get("author_id") != request.user.id:
+        messages.error(request, "You do not have permission to view this story tree.")
+        return redirect("home")
+
+    pages = story.get("pages", []) or []
+    start_id = story.get("start_page_id")
+
+    nodes = []
+    edges = []
+
+    for p in pages:
+        text_preview = (p.get("text") or "").strip()
+        if len(text_preview) > 60:
+            text_preview = text_preview[:57] + "..."
+
+        nodes.append(
+            {
+                "id": p.get("id"),
+                "page_number": p.get("page_number"),
+                "text": text_preview,
+                "is_start": (p.get("id") == start_id),
+                "is_ending": bool(p.get("is_ending")),
+                "ending_label": p.get("ending_label") or "",
+            }
+        )
+
+        for c in p.get("choices") or []:
+            edges.append(
+                {
+                    "from": p.get("id"),
+                    "to": c.get("next_page_id"),
+                    "text": (c.get("text") or "").strip(),
+                }
+            )
+
+    tree_data = {"nodes": nodes, "edges": edges}
+
+    return render(
+        request,
+        "game/story_tree.html",
+        {
+            "story": story,
+            "tree_data": json.dumps(tree_data),
+        },
+    )
 
 
 def rate_story(request, story_id):
