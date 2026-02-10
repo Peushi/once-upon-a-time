@@ -1,116 +1,130 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from.flask_api import flask_api
-from .models import  Play, PlaySession, UserProfile, Rating, Report
+from .flask_api import flask_api
+from .models import Play, PlaySession, UserProfile, Rating, Report
 from django.contrib.auth.models import User
 from django.db.models import Count, Avg
 
 
 def convert_tags_to_list(story):
     """Helper function to convert tags string to list"""
-    if story and story.get('tags'):
-        story['tags_list'] = [t.strip() for t in story['tags'].split(',') if t.strip()]
+    if story and story.get("tags"):
+        story["tags_list"] = [t.strip() for t in story["tags"].split(",") if t.strip()]
     else:
-        story['tags_list'] = []
+        story["tags_list"] = []
     return story
 
-#home and browsing
-def home(request):
-    #get filter
-    search_query= request.GET.get('search', '')
-    tags_filter= request.GET.get('tags', '')
 
-    #fetches
+# home and browsing
+def home(request):
+    # get filter
+    search_query = request.GET.get("search", "")
+    tags_filter = request.GET.get("tags", "")
+
+    # fetches
     stories = flask_api.get_stories(
-        status='published',
+        status="published",
         search=search_query if search_query else None,
-        tags=tags_filter if tags_filter else None
+        tags=tags_filter if tags_filter else None,
     )
     if stories:
         for story in stories:
             convert_tags_to_list(story)
-            ratings = Rating.objects.filter(story_id=story['id'])
+            ratings = Rating.objects.filter(story_id=story["id"])
             if ratings.exists():
-                story['avg_rating'] = ratings.aggregate(Avg('rating'))['rating__avg']
-                story['rating_count'] = ratings.count()
+                story["avg_rating"] = ratings.aggregate(Avg("rating"))["rating__avg"]
+                story["rating_count"] = ratings.count()
             else:
-                story['avg_rating'] = None
-                story['rating_count'] = 0
-    
-    context = {'stories': stories, 
-               'search_query': search_query,
-               'tags_filter': tags_filter}
-    return render(request, 'game/home.html', context)
+                story["avg_rating"] = None
+                story["rating_count"] = 0
+
+    context = {
+        "stories": stories,
+        "search_query": search_query,
+        "tags_filter": tags_filter,
+    }
+    return render(request, "game/home.html", context)
+
 
 def story_detail(request, story_id):
     story = flask_api.get_story(story_id)
     if not story:
-        messages.error(request, 'Story not found')
-        return redirect('home')
-    
+        messages.error(request, "Story not found")
+        return redirect("home")
+
     convert_tags_to_list(story)
-    
-    # check if user can view 
-    if story['status'] == 'draft':
+
+    # check if user can view
+    if story["status"] == "draft":
         if not request.user.is_authenticated:
-            messages.error(request, 'This story is not yet published')
-            return redirect('home')
-        
-        profile = getattr(request.user, 'profile', None)
-        if not profile or (not profile.is_admin() and story.get('author_id') != request.user.id):
-            messages.error(request, 'You do not have permission to view this story')
-            return redirect('home')
+            messages.error(request, "This story is not yet published")
+            return redirect("home")
+
+        profile = getattr(request.user, "profile", None)
+        if not profile or (
+            not profile.is_admin() and story.get("author_id") != request.user.id
+        ):
+            messages.error(request, "You do not have permission to view this story")
+            return redirect("home")
 
     # stats:
-    plays = Play.objects.filter(story_id =story_id)
+    plays = Play.objects.filter(story_id=story_id)
     total_plays = plays.count()
 
-    #ending distribution
-    ending_count = plays.values('ending_page_id').annotate(count=Count('id'))
+    # ending distribution
+    ending_count = plays.values("ending_page_id").annotate(count=Count("id"))
     ending_stats = []
     for ending in ending_count:
-        percentage = (ending['count']/total_plays *100) if total_plays > 0 else 0
-        ending_stats.append({'ending_page_id': ending['ending_page_id'], 
-                             'count': ending['count'], 
-                             'percentage': round(percentage, 1)})
-        
-    ratings = Rating.objects.filter(story_id=story_id).select_related('user')
-    avg_rating = ratings.aggregate(Avg('rating'))['rating__avg']
+        percentage = (ending["count"] / total_plays * 100) if total_plays > 0 else 0
+        ending_stats.append(
+            {
+                "ending_page_id": ending["ending_page_id"],
+                "count": ending["count"],
+                "percentage": round(percentage, 1),
+            }
+        )
+
+    ratings = Rating.objects.filter(story_id=story_id).select_related("user")
+    avg_rating = ratings.aggregate(Avg("rating"))["rating__avg"]
     user_rating = None
     if request.user.is_authenticated:
         user_rating = ratings.filter(user=request.user).first()
 
     can_edit = False
     if request.user.is_authenticated:
-        profile = getattr(request.user, 'profile', None)
-        can_edit = (profile and profile.is_admin()) or story.get('author_id') == request.user.id
+        profile = getattr(request.user, "profile", None)
+        can_edit = (profile and profile.is_admin()) or story.get(
+            "author_id"
+        ) == request.user.id
 
     can_moderate = request.user.is_staff if request.user.is_authenticated else False
 
     context = {
-        'story': story,
-        'total_plays': total_plays,
-        'ending_stats': ending_stats,
-        'ratings': ratings, 
-        'avg_rating':round(avg_rating, 1) if avg_rating else None,
-        'rating_count': ratings.count(),
-        'user_rating': user_rating,
-        'can_edit': can_edit,
-        'can_moderate': can_moderate
-        }
-    return render(request, 'game/story_detail.html', context)
+        "story": story,
+        "total_plays": total_plays,
+        "ending_stats": ending_stats,
+        "ratings": ratings,
+        "avg_rating": round(avg_rating, 1) if avg_rating else None,
+        "rating_count": ratings.count(),
+        "user_rating": user_rating,
+        "can_edit": can_edit,
+        "can_moderate": can_moderate,
+    }
+    return render(request, "game/story_detail.html", context)
 
-#gameplay
+
+# gameplay
+
 
 def play_story(request, story_id):
     story = flask_api.get_story(story_id)
     if not story:
-        messages.error(request, 'Story not found')
-        return redirect('home')
+        messages.error(request, "Story not found")
+        return redirect("home")
 
-    if story['status'] not in ['published', 'draft']:
-        messages.error(request, 'This story is not available for playing')
-        return redirect('home')
+    if story["status"] not in ["published", "draft"]:
+        messages.error(request, "This story is not available for playing")
+        return redirect("home")
 
     # saved session
     session_key = request.session.session_key
@@ -118,20 +132,22 @@ def play_story(request, story_id):
         request.session.create()
         session_key = request.session.session_key
 
-    saved_session = PlaySession.objects.filter(session_key=session_key, story_id=story_id).first()
+    saved_session = PlaySession.objects.filter(
+        session_key=session_key, story_id=story_id
+    ).first()
 
-    if saved_session and request.GET.get('resume') != 'false':
-        return redirect('play_page', story_id=story_id, page_id=saved_session.current_page_id)
+    if saved_session and request.GET.get("resume") != "false":
+        return redirect(
+            "play_page", story_id=story_id, page_id=saved_session.current_page_id
+        )
 
     # start from beginning
     start_page = flask_api.get_story_start(story_id)
 
-    # start_page MUST be a dict with "id"
-    if not start_page or 'id' not in start_page:
-        messages.error(request, 'Story has no start page set yet.')
-        return redirect('story_detail', story_id=story_id)
-
-    start_page_id = start_page['page_id']
+    start_page_id = start_page.get("page_id") if start_page else None
+    if not start_page_id:
+        messages.error(request, "Story has no start page set yet.")
+        return redirect("story_detail", story_id=story_id)
 
     # create/update the session
     if saved_session:
@@ -142,64 +158,77 @@ def play_story(request, story_id):
             session_key=session_key,
             story_id=story_id,
             current_page_id=start_page_id,
-            user=request.user if request.user.is_authenticated else None
+            user=request.user if request.user.is_authenticated else None,
         )
 
-    return redirect('play_page', story_id=story_id, page_id=start_page_id)
+    return redirect("play_page", story_id=story_id, page_id=start_page_id)
+
 
 def play_page(request, story_id, page_id):
     story = flask_api.get_story(story_id)
     page = flask_api.get_page(page_id)
 
     if not story or not page:
-        messages.error(request, 'Page not found')
-        return redirect('home')
-    
+        messages.error(request, "Page not found")
+        return redirect("home")
+
     session_key = request.session.session_key
     if session_key:
-        PlaySession.objects.update_or_create(session_key=session_key, story_id=story_id,
-                                             defaults={'current_page_id':page_id,
-                                            'user': request.user if request.user.is_authenticated else None})
-    
-    if page.get('is_ending'):
-        play = Play.objects.create(story_id=story_id, ending_page_id=page_id,
-                                   user=request.user if request.user.is_authenticated else None)
+        PlaySession.objects.update_or_create(
+            session_key=session_key,
+            story_id=story_id,
+            defaults={
+                "current_page_id": page_id,
+                "user": request.user if request.user.is_authenticated else None,
+            },
+        )
+
+    if page.get("is_ending"):
+        play = Play.objects.create(
+            story_id=story_id,
+            ending_page_id=page_id,
+            user=request.user if request.user.is_authenticated else None,
+        )
         if session_key:
-            PlaySession.objects.filter(session_key=session_key, story_id=story_id).delete()
-        context = {'story': story,
-               'page': page,
-               'is_ending': True,
-               'play_id': play.id}
-        return render(request, 'game/play_ending.html', context)
-    
-    context ={'story': story,
-               'page': page,
-               'is_ending': False}
-    return render(request, 'game/play_page.html', context)
+            PlaySession.objects.filter(
+                session_key=session_key, story_id=story_id
+            ).delete()
+        context = {"story": story, "page": page, "is_ending": True, "play_id": play.id}
+        return render(request, "game/play_ending.html", context)
+
+    context = {"story": story, "page": page, "is_ending": False}
+    return render(request, "game/play_page.html", context)
+
 
 def stats(request):
     if request.user.is_authenticated and not request.user.is_staff:
         messages.error(request, "You do not have permission to view statistics")
-        return redirect('home')
-    
-    stories = flask_api.get_stories(status='published')
+        return redirect("home")
+
+    stories = flask_api.get_stories(status="published")
     story_stats = []
     for story in stories:
-        plays = Play.objects.filter(story_id= story['id'])
+        plays = Play.objects.filter(story_id=story["id"])
         total_plays = plays.count()
-        ending_counts= plays.values('ending_page_id').annotate(count=Count('id'))
-        story_stats.append({'story': story,
-            'total_plays': total_plays,
-            'unique_players': plays.filter(user__isnull=False).values('user').distinct().count(),
-            'endings': list(ending_counts)
-        })
+        ending_counts = plays.values("ending_page_id").annotate(count=Count("id"))
+        story_stats.append(
+            {
+                "story": story,
+                "total_plays": total_plays,
+                "unique_players": plays.filter(user__isnull=False)
+                .values("user")
+                .distinct()
+                .count(),
+                "endings": list(ending_counts),
+            }
+        )
     total_plays = Play.objects.count()
     total_users = User.objects.count()
     total_stories = len(stories)
     context = {
-        'story_stats': story_stats,
-        'total_plays': total_plays,
-        'total_users': total_users,
-        'total_stories':total_stories
+        "story_stats": story_stats,
+        "total_plays": total_plays,
+        "total_users": total_users,
+        "total_stories": total_stories,
     }
-    return render(request, 'game/statistics.html', context)
+    return render(request, "game/statistics.html", context)

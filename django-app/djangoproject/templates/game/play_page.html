@@ -23,11 +23,11 @@
         </div>
     </div>
     
-    {% if choices %}
+    {% if page.choices %}
         <div style="margin-top: 2rem;">
             <h3>What do you do?</h3>
             <div class="grid">
-                {% for choice in choices %}
+                {% for choice in page.choices %}
                     <a href="{% url 'play_page' story.id choice.next_page_id %}" 
                        class="card" 
                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 

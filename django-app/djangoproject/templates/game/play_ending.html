@@ -32,10 +32,11 @@
             <a href="{% url 'play_story' story.id %}?resume=false" class="btn btn-success">Play Again</a>
             <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">Story Details</a>
             <a href="{% url 'home' %}" class="btn">Browse More Stories</a>
-            
+             
             {% if user.is_authenticated %}
-                <a href="{% url 'player_path' play_id %}" class="btn" style="background: #9c27b0;">View Your Path</a>
+                {# View Your Path is disabled (player_path route not implemented yet) #}
             {% endif %}
+             
         </div>
     </div>
 </div>

@@ -10,11 +10,12 @@ from .models import UserProfile, Rating, Report
 
 def convert_tags_to_list(story):
     """Helper function to convert tags string to list"""
-    if story and story.get('tags'):
-        story['tags_list'] = [t.strip() for t in story['tags'].split(',') if t.strip()]
+    if story and story.get("tags"):
+        story["tags_list"] = [t.strip() for t in story["tags"].split(",") if t.strip()]
     else:
-        story['tags_list'] = []
+        story["tags_list"] = []
     return story
+
 
 def register(request):
     if request.method == "POST":
@@ -57,6 +58,10 @@ def my_stories(request):
         return redirect("home")
     all_stories = flask_api.get_stories()
     my_stories = [s for s in all_stories if s.get("author_id") == request.user.id]
+    for i, s in enumerate(my_stories):
+        full = flask_api.get_story(s["id"], include_pages=True)
+        if full:
+            my_stories[i] = full
     for story in my_stories:
         convert_tags_to_list(story)
     context = {"stories": my_stories}
@@ -78,7 +83,7 @@ def create_story(request):
         if not title:
             messages.error(request, "Title is required")
             return render(request, "game/create_story.html")
-        
+
         tags_list = [t.strip() for t in tags.split(",")] if tags else []
 
         story = flask_api.create_story(
@@ -86,7 +91,7 @@ def create_story(request):
             description=description,
             status="draft",
             author_id=request.user.id,
-            tags=tags_list
+            tags=tags_list,
         )
         if story:
             messages.success(request, "Story created successfully!")
@@ -253,7 +258,7 @@ def create_choice(request, page_id):
 
     if request.method == "POST":
         text = request.POST.get("text")
-        next_page_id = int(request.POST.get('next_page_id'))
+        next_page_id = int(request.POST.get("next_page_id"))
         try:
             next_page_id = int(next_page_id)
         except (TypeError, ValueError):
@@ -322,36 +327,41 @@ def unsuspend_story(request, story_id):
 
     return redirect("story_detail", story_id=story_id)
 
+
 @login_required
 def story_tree(request, story_id):
     messages.info(request, "Story tree is not implemented yet.")
-    return redirect('edit_story', story_id=story_id)
+    return redirect("edit_story", story_id=story_id)
 
 
 def rate_story(request, story_id):
     messages.info(request, "Story ratings feature coming soon!")
-    return redirect('story_detail', story_id=story_id)
+    return redirect("story_detail", story_id=story_id)
+
 
 def delete_rating(request, rating_id):
     messages.info(request, "Story ratings feature coming soon!")
-    return redirect('home')
+    return redirect("home")
+
 
 def report_story(request, story_id):
     messages.info(request, "Story reporting feature coming soon!")
-    return redirect('story_detail', story_id=story_id)
+    return redirect("story_detail", story_id=story_id)
+
 
 @login_required
 def reports_list(request):
     if not request.user.is_staff:
         messages.error(request, "Admin access required")
-        return redirect('home')
+        return redirect("home")
     messages.info(request, "Reports feature coming soon!")
-    return redirect('home')
+    return redirect("home")
+
 
 @login_required
 def update_report(request, report_id):
     if not request.user.is_staff:
         messages.error(request, "Admin access required")
-        return redirect('home')
+        return redirect("home")
     messages.info(request, "Reports feature coming soon!")
-    return redirect('home')
+    return redirect("home")
