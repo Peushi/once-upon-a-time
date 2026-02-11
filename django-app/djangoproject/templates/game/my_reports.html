@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>📌 My Reports</h1>
+
+    {% if reports %}
+        <ul>
+        {% for report in reports %}
+            <li style="margin-bottom: 15px;">
+                <strong>Story ID:</strong> {{ report.story_id }} <br>
+                <strong>Reason:</strong> {{ report.reason }} <br>
+                <small>{{ report.created_at }}</small><br>
+
+                {% if report.resolved %}
+                    <span style="color: green;"><b>Resolved</b></span>
+                {% else %}
+                    <span style="color: red;"><b>Pending</b></span>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't reported any stories.</p>
+    {% endif %}
+</div>
+{% endblock %}

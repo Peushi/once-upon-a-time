@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Story - {{ story.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🚩 Report Story</h1>
+    <p>You are reporting: <strong>{{ story.title }}</strong></p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Reason:</label>
+            <select name="reason" required>
+                <option value="">Select...</option>
+                <option value="inappropriate">Inappropriate Content</option>
+                <option value="offensive">Offensive Language</option>
+                <option value="spam">Spam</option>
+                <option value="broken">Broken Story/Links</option>
+                <option value="copyright">Copyright Violation</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Description:</label>
+            <textarea name="description" required placeholder="Explain the issue..."></textarea>
+        </div>
+
+        <label>
+            <input type="checkbox" required>
+            I understand that reports cannot be edited or deleted after submission.
+        </label>
+        <br><br>
+        <button type="submit" class="btn btn-danger">Submit Report</button>
+        <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -53,7 +53,7 @@
 </div>
 
 <!--Ratings & Comments -->
-<div class="card">
+<div class="card"  id="ratings">
     <h2>⭐ Ratings & Reviews</h2>
     
     {% if avg_rating %}
@@ -125,7 +125,7 @@
         {% for ending in ending_stats %}
             <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
                 <div style="display: flex; justify-content: space-between;">
-                    <span><strong>{{ ending.ending_label|default:"Ending" }} (Page {{ ending.ending_page_id }})</strong></span>
+                    <span><strong>{{ ending.ending_label|default:"Ending" }}</strong></span>
                     <span>{{ ending.percentage }}% ({{ ending.count }} plays)</span>
                 </div>
                 <div style="background: #4CAF50; height: 10px; border-radius: 5px; margin-top: 0.5rem; width: {{ ending.percentage }}%;"></div>
@@ -141,6 +141,25 @@
         <p>Found inappropriate content or a problem with this story?</p>
         <a href="{% url 'report_story' story.id %}" class="btn btn-danger">Report This Story</a>
     </div>
+{% endif %}
+
+<!-- for admins-->
+{% if can_moderate %}
+  <h3>Reports for this story</h3>
+
+  {% if reports %}
+    <ul>
+      {% for report in reports %}
+        <li>
+          <strong>{{ report.user.username }}</strong> -
+          {{ report.reason }} <br>
+          <small>{{ report.created_at }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No reports for this story.</p>
+  {% endif %}
 {% endif %}
 
 
