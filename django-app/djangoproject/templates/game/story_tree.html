@@ -9,29 +9,78 @@
     <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">← Back to Story</a>
 </div>
 
-<div class="card">
+    <div class="card" style="max-width: 1100px; margin: 0 auto;">
+    <div style="display:flex; justify-content:flex-end; margin-bottom: 1rem;">
+        <button type="button" id="fit-graph" class="btn btn-secondary">Fit to screen</button>
+    </div>
     <div id="story-graph"
-         style="width: 100%; height: 1200px; border-radius: 18px; background: #fdeff2; overflow: hidden;">
+     style="
+        width: 90%;
+        height: 750px;
+        margin: 0 auto;          
+        border-radius: 18px;
+        background: #fdeff2;
+        overflow: hidden;
+     ">
     </div>
 </div>
 
-<div class="card">
-    <h3>Legend</h3>
+<div class="card" style="
+    max-width: 1100px;
+    margin: 1.5rem auto 0 auto;
+    background: #fdeff2;
+    border-radius: 18px;
+">
+    <h3 style="margin-bottom: 1rem;">Legend</h3>
+
     <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;">
         <div>
-            <span style="display: inline-block; width: 18px; height: 18px; background: #FAD7C6; border: 3px solid #FF6FA3; border-radius: 10px;"></span>
+            <span style="
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                background: #FAD7C6;
+                border: 3px solid #FF6FA3;
+                border-radius: 10px;
+                margin-right: 6px;
+            "></span>
             Start Page
         </div>
+
         <div>
-            <span style="display: inline-block; width: 18px; height: 18px; background: #F8B8CF; border: 3px solid #ffffff; border-radius: 10px;"></span>
+            <span style="
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                background: #F8B8CF;
+                border: 3px solid #ffffff;
+                border-radius: 10px;
+                margin-right: 6px;
+            "></span>
             Regular Page
         </div>
+
         <div>
-            <span style="display: inline-block; width: 18px; height: 18px; background: #CBB7E8; border: 3px solid #B39DDB; border-radius: 10px;"></span>
+            <span style="
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                background: #CBB7E8;
+                border: 3px solid #B39DDB;
+                border-radius: 10px;
+                margin-right: 6px;
+            "></span>
             Ending
         </div>
+
         <div>
-            <span style="display: inline-block; width: 34px; height: 0; border-top: 3px dashed #C8C1FF;"></span>
+            <span style="
+                display: inline-block;
+                width: 34px;
+                height: 0;
+                border-top: 3px dashed #C8C1FF;
+                margin-right: 6px;
+            "></span>
             Choice link
         </div>
     </div>
@@ -53,7 +102,6 @@ const nodes = treeData.nodes.map(n => {
     const bg = isStart ? "#FAD7C6" : (isEnding ? "#CBB7E8" : "#F8B8CF");
     const border = isStart ? "#FF6FA3" : (isEnding ? "#B39DDB" : "#FFFFFF");
 
-    // actual page number
     const title = `Page ${n.page_number ?? n.id}`;
     const subtitle = isStart
         ? "The Beginning"
@@ -153,7 +201,15 @@ const data = {
 //Layout 
 const options = {
     physics: false,
-    interaction: { dragNodes: true, dragView: true, zoomView: true },
+
+    // interaction block
+    interaction: { 
+        dragNodes: true, 
+        dragView: true, 
+        zoomView: true,
+        zoomKey: "ctrlKey" 
+    },
+
     layout: {
         hierarchical: {
             enabled: true,
@@ -162,7 +218,6 @@ const options = {
             shakeTowards: "roots",
             parentCentralization: true,
 
-            // spacing
             levelSeparation: 330,
             nodeSpacing: 360,
             treeSpacing: 420,
@@ -182,5 +237,13 @@ setTimeout(() => {
     network.fit({ animation: { duration: 600 } });
     network.moveTo({ scale: 0.85 });
 }, 50);
+
+//disable accidental double click zoom
+document.getElementById('story-graph').addEventListener('dblclick', function(e) {
+    e.preventDefault();
+});
+document.getElementById("fit-graph").addEventListener("click", () => {
+  network.fit({ animation: { duration: 600 } });
+});
 </script>
 {% endblock %}
