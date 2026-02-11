@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden
 from .flask_api import flask_api
 from .models import UserProfile, Rating, Report
@@ -384,20 +385,81 @@ def story_tree(request, story_id):
         },
     )
 
-
+@login_required
 def rate_story(request, story_id):
-    messages.info(request, "Story ratings feature coming soon!")
+    story = flask_api.get_story(story_id)
+    if not story:
+        messages.error(request, "Story not found.")
+        return redirect("home")
+
+    if request.method != "POST":
+        return redirect("story_detail", story_id=story_id)
+
+    rating_value = request.POST.get("rating")
+    comment = request.POST.get("comment", "").strip()
+    try:
+        rating_value = int(rating_value)
+        if rating_value < 1 or rating_value > 5:
+            raise ValueError()
+    except:
+        messages.error(request, "Invalid rating. Please choose between 1 and 5.")
+        return redirect("story_detail", story_id=story_id)
+    
+    created = Rating.objects.update_or_create(
+        story_id=story_id,
+        user=request.user,
+        defaults={"rating": rating_value, "comment": comment},
+    )
+
+    if created:
+        messages.success(request, "Your rating has been submitted!")
+    else:
+        messages.success(request, "Your rating has been updated!")
+
     return redirect("story_detail", story_id=story_id)
 
-
+@login_required
 def delete_rating(request, rating_id):
-    messages.info(request, "Story ratings feature coming soon!")
-    return redirect("home")
+    rating = get_object_or_404(Rating, id=rating_id)
 
+    if rating.user != request.user and not request.user.is_staff:
+        return HttpResponseForbidden("You do not have permission to delete this rating.")
 
-def report_story(request, story_id):
-    messages.info(request, "Story reporting feature coming soon!")
+    story_id = rating.story_id
+    rating.delete()
+
+    messages.success(request, "Your rating has been deleted.")
     return redirect("story_detail", story_id=story_id)
+
+@login_required
+def report_story(request, story_id):
+    story = flask_api.get_story(story_id)
+    if not story:
+        messages.error(request, "Story not found.")
+        return redirect("home")
+
+    if request.method == "POST":
+        reason = request.POST.get("reason")
+        description = request.POST.get("description", "").strip()
+
+        if not reason:
+            messages.error(request, "Please select a reason.")
+            return redirect("report_story", story_id=story_id)
+
+        if not description:
+            messages.error(request, "Please describe the issue.")
+            return redirect("report_story", story_id=story_id)
+        
+        Report.objects.create(
+            story_id=story_id,
+            user=request.user,
+            reason=reason,
+            description=description,
+        )
+        messages.success(request, "Report submitted successfully. Thank you!")
+        return redirect("story_detail", story_id=story_id)
+
+    return render(request, "game/report_story.html", {"story": story})
 
 
 @login_required
@@ -405,8 +467,15 @@ def reports_list(request):
     if not request.user.is_staff:
         messages.error(request, "Admin access required")
         return redirect("home")
-    messages.info(request, "Reports feature coming soon!")
-    return redirect("home")
+
+    reports = Report.objects.all().order_by("status", "-id")
+    enriched_reports = []
+    for r in reports:
+        story = flask_api.get_story(r.story_id)
+        r.story_title = story["title"] if story else "Unknown Story"
+        enriched_reports.append(r)
+
+    return render(request, "game/reports_list.html", {"reports": enriched_reports})
 
 
 @login_required
@@ -414,5 +483,29 @@ def update_report(request, report_id):
     if not request.user.is_staff:
         messages.error(request, "Admin access required")
         return redirect("home")
-    messages.info(request, "Reports feature coming soon!")
-    return redirect("home")
+    report = get_object_or_404(Report, id=report_id)
+
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+        notes = request.POST.get("moderator_notes", "").strip()
+
+        valid_statuses = [s[0] for s in Report.status_choice]
+        if new_status not in valid_statuses:
+            messages.error(request, "Invalid status.")
+            return redirect("reports_list")
+
+        report.status = new_status
+        report.moderator_notes = notes
+        report.reviewed_by = request.user
+        report.save()
+        messages.success(request, "Report updated successfully.")
+        return redirect("reports_list")
+
+    story = flask_api.get_story(report.story_id)
+    story_title = story["title"] if story else "Unknown Story"
+
+    return render(
+        request,
+        "game/update_report.html",
+        {"report": report, "story_title": story_title},
+    )

@@ -76,9 +76,12 @@ def story_detail(request, story_id):
     ending_stats = []
     for ending in ending_count:
         percentage = (ending["count"] / total_plays * 100) if total_plays > 0 else 0
+        ending_page = flask_api.get_page(ending["ending_page_id"])
+        ending_label = ending_page.get("ending_label") if ending_page else None
         ending_stats.append(
             {
                 "ending_page_id": ending["ending_page_id"],
+                "ending_label": ending_label,
                 "count": ending["count"],
                 "percentage": round(percentage, 1),
             }
@@ -98,6 +101,9 @@ def story_detail(request, story_id):
         ) == request.user.id
 
     can_moderate = request.user.is_staff if request.user.is_authenticated else False
+    reports = None
+    if can_moderate:
+        reports = Report.objects.filter(story_id=story_id).select_related("user").order_by("-created_at")
 
     context = {
         "story": story,
@@ -109,6 +115,7 @@ def story_detail(request, story_id):
         "user_rating": user_rating,
         "can_edit": can_edit,
         "can_moderate": can_moderate,
+        "reports": reports,
     }
     return render(request, "game/story_detail.html", context)
 
