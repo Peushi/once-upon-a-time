@@ -4,7 +4,8 @@
 
 {% block content %}
 <div class="card">
-    <h1>✍️ Editing: {{ story.title }}</h1>
+    <h1 style="display:flex; align-items:center; gap:10px;">
+           <img src="https://img.icons8.com/nolan/25/edit--v1.png" alt="edit--v1"/> Editing: {{ story.title }}</h1>
     <span class="badge badge-{{ story.status }}">{{ story.status|upper }}</span>
 </div>
 
@@ -56,7 +57,8 @@
     {% if story.start_page_id %}
         <p>Current start page</p>
     {% else %}
-        <p style="color: #f44336;">⚠️ No start page set! The story cannot be played yet.</p>
+        <p style="color: #f44336; display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-importance.png" alt="high-importance"/> No start page set! The story cannot be played yet.</p>
     {% endif %}
     
     {% if story.pages %}
@@ -149,8 +151,10 @@
 <div class="card" style="background: #e8f5e9;">
     <h2>Preview</h2>
     <p>Test your story before publishing!</p>
-    <a href="{% url 'play_story' story.id %}" class="btn btn-success" target="_blank">▶ Preview Story</a>
-    <a href="{% url 'story_tree' story.id %}" class="btn btn-secondary" target="_blank">📊 View Story Map</a>
+    <a href="{% url 'play_story' story.id %}" class="btn btn-success" target="_blank" style="display:inline-flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/visible.png" alt="visible"/> Preview Story</a>
+    <a href="{% url 'story_tree' story.id %}" class="btn btn-secondary btn-flex" target="_blank" style="display:inline-flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/map.png" alt="map"/> View Story Map</a>
 </div>
 
 {% endblock %}

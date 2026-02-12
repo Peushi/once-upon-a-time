@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}My Stories - NAHB{% endblock %}
+{% block title %}My Stories - Enchantext{% endblock %}
 
 {% block content %}
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <h1>✍️ My Stories</h1>
+            <h1 style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/30/pen.png" alt="pen"/> My Stories</h1>
             <p>Manage your interactive adventures</p>
         </div>
         <a href="{% url 'create_story' %}" class="btn btn-success">+ Create New Story</a>
@@ -28,21 +29,36 @@
                 
                 <!-- Story Stats -->
                 <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
-                    <div style="display: flex; gap: 1.5rem; font-size: 0.9rem;">
-                        <div>
-                            <strong>📄 Pages:</strong> 
-                            {% if story.pages %}{{ story.pages|length }}{% else %}0{% endif %}
+                    <div style="display: flex; gap: 2rem; font-size: 0.9rem; align-items: center;">
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="https://img.icons8.com/nolan/25/overview-pages-1.png" alt="overview-pages-1"/>
+                            <strong>Pages:</strong>
+                            <span>{% if story.pages %}{{ story.pages|length }}{% else %}0{% endif %}</span>
                         </div>
-                        <div>
-                            <strong>🎯 Start:</strong> 
-                            {% if story.start_page_id %}Set{% else %}<span style="color: #f44336;">Not Set</span>{% endif %}
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="https://img.icons8.com/nolan/25/goal.png" alt="goal"/>
+                            <strong>Start:</strong>
+                            <span>
+                                {% if story.start_page_id %}
+                                    Set
+                                {% else %}
+                                    <span style="color: #f44336;">Not Set</span>
+                                {% endif %}
+                            </span>
                         </div>
-                        <div>
-                            <strong>🏷️ Tags:</strong> 
-                            {% if story.tags_list %}{{ story.tags_list|length }}{% else %}0{% endif %}
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="https://img.icons8.com/nolan/25/tags.png" alt="tags"/>
+                            <strong>Tags:</strong>
+                            <span>{% if story.tags_list %}{{ story.tags_list|length }}{% else %}0{% endif %}</span>
                         </div>
+
                     </div>
                 </div>
+
+
                 
                 <!-- Tags Display -->
                 {% if story.tags_list %}
@@ -58,30 +74,31 @@
                 <!-- Warning if incomplete -->
                 {% if not story.start_page_id %}
                     <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 0.75rem; margin-bottom: 1rem; border-radius: 4px;">
-                        <strong>⚠️ Action Required:</strong> Set a start page before publishing!
+                        <strong style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-importance.png" alt="high-importance"/> Action Required:</strong> Set a start page before publishing!
                     </div>
                 {% endif %}
                 
                 <!-- Actions -->
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <a href="{% url 'edit_story' story.id %}" class="btn">
-                        ✏️ Edit
+                    <a href="{% url 'edit_story' story.id %}" class="btn" style="display:flex; align-items:center; gap:10px;">
+           <img src="https://img.icons8.com/nolan/25/edit--v1.png" alt="edit--v1"/> Edit
                     </a>
                     
                     {% if story.start_page_id %}
-                        <a href="{% url 'play_story' story.id %}" class="btn btn-success" target="_blank">
-                            ▶️ Preview
+                        <a href="{% url 'play_story' story.id %}" class="btn btn-success" target="_blank" style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/visible.png" alt="visible"/>Preview
                         </a>
                     {% endif %}
                     
-                    <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">
-                        📊 View Details
+                    <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary" style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/bar-chart.png" alt="bar-chart"/> View Details
                     </a>
                     
                     <a href="{% url 'delete_story' story.id %}" 
                        class="btn btn-danger"
-                       onclick="return confirm('Delete {{ story.title }}? This cannot be undone!')">
-                        🗑️ Delete
+                       onclick="return confirm('Delete {{ story.title }}? This cannot be undone!')" style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/waste.png" alt="waste"/> Delete
                     </a>
                 </div>
             </div>
@@ -89,19 +106,19 @@
     </div>
 {% else %}
     <div class="card text-center" style="background: #f8f9fa; padding: 3rem;">
-        <h2 style="color: #666; margin-bottom: 1rem;">📚 No Stories Yet</h2>
+        <h2 style="color: #666; margin-bottom: 1rem;"> No Stories Yet</h2>
         <p style="color: #999; margin-bottom: 2rem;">
             Start creating your first interactive adventure!
         </p>
         <a href="{% url 'create_story' %}" class="btn btn-success" style="font-size: 1.1rem;">
-            ✨ Create Your First Story
+             Create Your First Story
         </a>
     </div>
 {% endif %}
 
 <!-- Quick Stats -->
 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-    <h3 style="color: white; margin-bottom: 1rem;">📈 Your Author Stats</h3>
+    <h3 style="color: white; margin-bottom: 1rem;"> Your Author Stats</h3>
     <div class="grid grid-3">
         <div style="text-align: center;">
             <div style="font-size: 2.5rem; font-weight: bold;">{{ stories|length }}</div>

@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - NAHB{% endblock %}
+{% block title %}Login - Enchantext{% endblock %}
 
 {% block content %}
 <div class="card" style="max-width: 500px; margin: 2rem auto;">
-    <h1 class="text-center">🔐 Login</h1>
+    <h1 class="text-center" style="display:flex; align-items:center; justify-content: center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/40/enter-2.png" alt="enter-2"/> Login</h1>
     
     <form method="POST">
         {% csrf_token %}

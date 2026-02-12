@@ -4,7 +4,8 @@
 
 {% block content %}
 <div class="card">
-    <h1>📊 Story Map: {{ story.title }}</h1>
+    <h1 style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/40/adventure.png" alt="adventure"/> Story Map: {{ story.title }}</h1>
     <p>Visual representation of the story structure</p>
     <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">← Back to Story</a>
 </div>
@@ -107,7 +108,7 @@ const nodes = treeData.nodes.map(n => {
         ? "The Beginning"
         : (n.ending_label ? n.ending_label : "The Choice");
 
-    const iconLine = isStart ? "★" : (isEnding ? "🏁" : "✨");
+    const iconLine = isStart ? "★" : (isEnding ? "" : "");
 
     return {
         id: n.id,

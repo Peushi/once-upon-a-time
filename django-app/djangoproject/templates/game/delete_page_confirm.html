@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="card" style="background: #ffebee; border-left: 4px solid #f44336;">
-    <h1 style="color: #f44336;">⚠️ Delete Page?</h1>
+    <h1 style="color: #f44336;"> Delete Page?</h1>
     <p style="color: #666;">This action cannot be undone!</p>
 </div>
 
@@ -32,7 +32,8 @@
     <!-- Warning about choices -->
     {% if page.choices %}
         <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-            <strong>⚠️ Choices Will Be Deleted:</strong>
+            <strong style=" display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-importance.png" alt="high-importance"/> Choices Will Be Deleted:</strong>
             <p style="margin: 0.5rem 0; color: #555;">
                 This page has <strong>{{ page.choices|length }} choice(s)</strong> that will also be deleted:
             </p>
@@ -47,7 +48,8 @@
     <!-- Warning about being start page -->
     {% if story.start_page_id == page.id %}
         <div style="background: #ffebee; border-left: 4px solid #f44336; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-            <strong>🚨 Critical Warning:</strong>
+            <strong style=" display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-priority.png" alt="high-priority"/> Critical Warning:</strong>
             <p style="margin: 0.5rem 0 0 0; color: #555;">
                 This is the <strong>START PAGE</strong> of your story! 
                 Deleting it will make your story unplayable until you set a new start page.
@@ -57,16 +59,18 @@
 
     <!-- Warning about incoming choices -->
     <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-        <strong>📌 Important:</strong>
+        <strong style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-importance.png" alt="high-importance"/> Important:</strong>
         <p style="margin: 0.5rem 0 0 0; color: #555;">
-            If other pages have choices that lead TO this page (Page #{{ page.id }}), 
+            If other pages have choices that lead TO this page, 
             those choices will become broken after deletion. You'll need to update or delete them manually.
         </p>
     </div>
 
     <!-- Alternatives -->
     <div style="background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-        <strong>💡 Alternatives:</strong>
+        <strong style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/20/light.png" alt="light"/> Alternatives:</strong>
         <p style="margin: 0.5rem 0 0 0; color: #555;">
             Instead of deleting, you could:
         </p>
@@ -99,8 +103,8 @@
         <div style="display: flex; gap: 1rem;">
             <button type="submit" 
                     class="btn btn-danger" 
-                    style="font-size: 1.1rem;">
-                🗑️ Yes, Delete Page
+                    style="font-size: 1.1rem; display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/waste.png" alt="waste"/> Yes, Delete Page
             </button>
             <a href="{% url 'edit_story' story.id %}" 
                class="btn btn-success"
@@ -108,8 +112,8 @@
                 ← No, Keep Page
             </a>
             <a href="{% url 'edit_page' page.id %}" 
-               class="btn btn-secondary">
-                ✏️ Edit Instead
+               class="btn btn-secondary" style="display:flex; align-items:center; gap:10px;">
+           <img src="https://img.icons8.com/nolan/25/edit--v1.png" alt="edit--v1"/> Edit Instead
             </a>
         </div>
     </form>
@@ -117,7 +121,7 @@
 
 <!-- Page Details -->
 <div class="card" style="background: #f8f9fa;">
-    <h3>📊 Page Details</h3>
+    <h3> Page Details</h3>
     <div class="grid grid-2">
         <div>
             <strong>Page ID:</strong> {{ page.id }}
@@ -141,7 +145,8 @@
         </div>
         {% if story.start_page_id == page.id %}
             <div style="grid-column: 1 / -1;">
-                <strong style="color: #f44336;">⚠️ This is the START PAGE</strong>
+                <strong style="color: #f44336; display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-priority.png" alt="high-priority"/> This is the START PAGE</strong>
             </div>
         {% endif %}
     </div>

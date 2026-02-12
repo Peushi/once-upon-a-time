@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Story - NAHB{% endblock %}
+{% block title %}Create Story - Enchantext{% endblock %}
 
 {% block content %}
 <div class="card">
-    <h1>✨ Create New Story</h1>
+    <h1 style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/30/pen.png" alt="pen"/> Create New Story</h1>
     <p>Start crafting your interactive adventure</p>
 </div>
 
@@ -48,7 +49,7 @@
         
         <!-- Info Box -->
         <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-            <strong>📝 What happens next?</strong>
+            <strong> What happens next?</strong>
             <p style="margin: 0.5rem 0 0 0; color: #555;">
                 After creating your story, you'll be able to:
             </p>
@@ -62,7 +63,8 @@
         </div>
         
         <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-            <strong>💡 Tip:</strong>
+            <strong style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/20/light.png" alt="light"/> Tip:</strong>
             <p style="margin: 0.5rem 0 0 0; color: #555;">
                 Your story will be created as a <strong>draft</strong>. You can add pages and choices before publishing it for readers.
             </p>
@@ -70,7 +72,7 @@
         
         <div style="display: flex; gap: 1rem;">
             <button type="submit" class="btn btn-success" style="font-size: 1.1rem;">
-                ✨ Create Story
+                 Create Story
             </button>
             <a href="{% url 'my_stories' %}" class="btn btn-secondary">
                 Cancel
@@ -81,10 +83,10 @@
 
 <!-- Quick Tips -->
 <div class="card" style="background: #f8f9fa;">
-    <h3>📚 Story Creation Tips</h3>
+    <h3> Story Creation Tips</h3>
     <div class="grid grid-2">
         <div style="padding: 1rem;">
-            <h4 style="color: #667eea; margin-bottom: 0.5rem;">🎯 Good Titles</h4>
+            <h4 style="color: #667eea; margin-bottom: 0.5rem;"> Good Titles</h4>
             <ul style="color: #666; margin: 0; padding-left: 1.5rem;">
                 <li>"The Lost City of Atlantis"</li>
                 <li>"Escape from the Haunted Manor"</li>
@@ -93,7 +95,7 @@
             </ul>
         </div>
         <div style="padding: 1rem;">
-            <h4 style="color: #667eea; margin-bottom: 0.5rem;">🏷️ Popular Tags</h4>
+            <h4 style="color: #667eea; margin-bottom: 0.5rem;"> Popular Tags</h4>
             <ul style="color: #666; margin: 0; padding-left: 1.5rem;">
                 <li>adventure, fantasy, sci-fi</li>
                 <li>horror, mystery, thriller</li>

@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - NAHB{% endblock %}
+{% block title %}Home - Enchantext{% endblock %}
 
 {% block content %}
 <div class="card">
-    <h1>📚 Choose Your Own Adventure</h1>
-    <p>Welcome to NAHB - Not Another Hero's Book! Dive into interactive stories where your choices shape the narrative.</p>
+    <h1 style="display:flex; align-items:center; gap:10px;">
+    <img src="https://img.icons8.com/nolan/64/books-1.png" alt="books" width="40" height="40">
+    Cast Your Own Adventure
+</h1>
+    <p>Welcome to Enchantext - Get lost in the right story! Dive into interactive stories where your choices shape the narrative.</p>
     
     {% if level %}
         <p><small><strong>{{ level }}</strong></small></p>
@@ -52,8 +55,8 @@
                     
 
                  {% if story.avg_rating %}
-                        <div style="margin: 0.5rem 0;">
-                            ⭐ {{ story.avg_rating|floatformat:1 }} / 5.0 ({{ story.rating_count }} ratings)
+                        <div style="margin: 0.5rem 0; display:flex; align-items:center; gap:10px;">
+                            <img src="https://img.icons8.com/nolan/25/star.png" alt="star"/> {{ story.avg_rating|floatformat:1 }} / 5.0 ({{ story.rating_count }} ratings)
                         </div>
                     {% endif %}
 
@@ -72,7 +75,8 @@
 
 {% if user.is_authenticated and user.profile.is_author %}
     <div class="card" style="background: #e8f5e9;">
-        <h3>✍️ Author Dashboard</h3>
+        <h3 style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/30/pen.png" alt="pen"/> Author Dashboard</h3>
         <p>Ready to create your own adventure?</p>
         <a href="{% url 'create_story' %}" class="btn btn-success">Create New Story</a>
         <a href="{% url 'my_stories' %}" class="btn btn-secondary">Manage My Stories</a>
@@ -81,7 +85,8 @@
 
 {% if not user.is_authenticated %}
     <div class="card" style="background: #fff3e0;">
-        <h3>👤 Join the Community</h3>
+        <h3 style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/35/add-user-group-woman-man.png" alt="add-user-group-woman-man"/> Join the Community</h3>
         <p><strong>Register as an Author</strong> to create your own interactive stories!</p>
         <a href="{% url 'register' %}" class="btn">Register Now</a>
     </div>

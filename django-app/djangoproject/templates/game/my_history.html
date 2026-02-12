@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}My History - NAHB{% endblock %}
+{% block title %}My History - Enchantext{% endblock %}
 
 {% block content %}
 <div class="card">
-    <h1>📜 My Play History</h1>
+    <h1 style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/40/order-history.png" alt="order-history"/> My Play History</h1>
     <p>Review your completed adventures and see which endings you've discovered</p>
 </div>
 
@@ -40,7 +41,6 @@
             <!-- Ending Reached -->
             <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #4CAF50; margin-bottom: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <span style="font-size: 1.5rem;">🏁</span>
                     <strong style="color: #4CAF50;">Ending Reached:</strong>
                     {% if item.ending_page.ending_label %}
                         <span class="badge" style="background: #4CAF50; color: white;">
@@ -62,25 +62,20 @@
 
             <!-- Actions -->
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <a href="{% url 'play_story' item.story.id %}?resume=false" class="btn btn-success">
-                    🔄 Play Again
+                <a href="{% url 'play_story' item.story.id %}?resume=false" class="btn btn-success" style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/repeat.png" alt="repeat"/> Play Again
                 </a>
                 
-                <a href="{% url 'story_detail' item.story.id %}" class="btn btn-secondary">
-                    📖 Story Details
+                <a href="{% url 'story_detail' item.story.id %}" class="btn btn-secondary" style="display:flex; align-items:center; gap:10px;">
+                    <img src="https://img.icons8.com/nolan/25/visible.png" alt="visible"/> Story Details
                 </a>
-                
-                {% if item.has_path %}
-                    <a href="{% url 'player_path' item.play.id %}" class="btn" style="background: #9c27b0; color: white;">
-                        🗺️ View My Path
-                    </a>
-                {% endif %}
             </div>
         </div>
     {% endfor %}
 
 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-    <h3 style="color: white; margin-bottom: 1rem;">📊 Your Stats</h3>
+    <h3 style="color: white; margin-bottom: 1rem; display:flex; align-items:center; gap:10px;">
+        <img src="https://img.icons8.com/nolan/25/bar-chart.png" alt="bar-chart"/> Your Stats</h3>
     <div class="grid grid-3">
         <div style="text-align: center;">
             <div style="font-size: 2.5rem; font-weight: bold;">{{ play_data|length }}</div>
@@ -99,12 +94,12 @@
 
 {% else %}
     <div class="card text-center" style="background: #f8f9fa; padding: 3rem;">
-        <h2 style="color: #666; margin-bottom: 1rem;">📚 No Stories Played Yet</h2>
+        <h2 style="color: #666; margin-bottom: 1rem;"> No Stories Played Yet</h2>
         <p style="color: #999; margin-bottom: 2rem;">
             Start your adventure! Complete stories to see them here.
         </p>
         <a href="{% url 'home' %}" class="btn btn-success" style="font-size: 1.1rem;">
-            🎮 Browse Stories
+             Browse Stories
         </a>
     </div>
 {% endif %}

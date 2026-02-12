@@ -4,7 +4,8 @@
 
 {% block content %}
 <div class="card">
-    <h1>📝 Edit Page</h1>
+    <h1 style="display:flex; align-items:center; gap:8px;">
+            <img src="https://img.icons8.com/nolan/35/overview-pages-1.png" alt="overview-pages-1"/> Edit Page</h1>
     <p>Story: <strong>{{ story.title }}</strong></p>
 </div>
 
@@ -26,7 +27,7 @@
         
         <!-- Ending Options -->
         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-            <h3 style="margin-top: 0;">🏁 Ending Settings</h3>
+            <h3 style="margin-top: 0;"> Ending Settings</h3>
             
             <div class="form-group">
                 <label style="display: flex; align-items: center; cursor: pointer;">
@@ -75,7 +76,8 @@
 
         {% if page.is_ending %}
             <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-                <strong>⚠️ Note:</strong>
+                <strong style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/high-importance.png" alt="high-importance"/> Note:</strong>
                 <p style="margin: 0.5rem 0 0 0; color: #555;">
                     Ending pages should not have choices. If you uncheck "This is an ending page", 
                     you'll need to add choices from the story editor.
@@ -84,7 +86,8 @@
         {% endif %}
 
         <div style="background: #e8f5e9; border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-            <strong>💡 Writing Tips:</strong>
+            <strong style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/20/light.png" alt="light"/> Writing Tips:</strong>
             <ul style="margin: 0.5rem 0 0 1.5rem; color: #555;">
                 <li>Be descriptive - help players visualize the scene</li>
                 <li>Build tension and excitement</li>
@@ -94,16 +97,16 @@
         </div>
         
         <div style="display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-success" style="font-size: 1.1rem;">
-                💾 Save Changes
+            <button type="submit" class="btn btn-success" style="font-size: 1.1rem; display:flex; align-items:center; justify-content:center; gap:10px;">
+        <img src="https://img.icons8.com/nolan/25/save-as.png" alt="save-as"/> Save Changes
             </button>
             <a href="{% url 'edit_story' story.id %}" class="btn btn-secondary">
                 Cancel
             </a>
             <a href="{% url 'delete_page' page.id %}" 
                class="btn btn-danger"
-               onclick="return confirm('Delete this page? This will also delete all choices from this page!')">
-                🗑️ Delete Page
+               onclick="return confirm('Delete this page? This will also delete all choices from this page!')" style="display:flex; align-items:center; gap:10px;">
+            <img src="https://img.icons8.com/nolan/25/waste.png" alt="waste"/> Delete Page
             </a>
         </div>
     </form>
@@ -111,7 +114,7 @@
 
 <!-- Page Info -->
 <div class="card" style="background: #f8f9fa;">
-    <h3>📊 Page Information</h3>
+    <h3> Page Information</h3>
     <div class="grid grid-2">
         <div>
             <strong>Page ID:</strong> {{ page.id }}

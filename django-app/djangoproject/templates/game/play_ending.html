@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="card text-center">
-    <h1 style="font-size: 3rem; margin-bottom: 1rem;">🎭 THE END</h1>
+    <h1 style="font-size: 3rem; margin-bottom: 1rem;"> THE END</h1>
     
     {% if page.ending_label %}
         <h2 style="color: #667eea; margin-bottom: 2rem;">{{ page.ending_label }}</h2>
@@ -45,7 +45,8 @@
 
 {% if user.is_authenticated %}
     <div class="card" style="background: #e8f5e9;">
-        <h3>⭐ Enjoyed the story?</h3>
+        <h3 style="margin: 0.5rem 0; display:flex; align-items:center; gap:10px;">
+                            <img src="https://img.icons8.com/nolan/25/star.png" alt="star"/> Enjoyed the story?</h3>
         <p>Share your thoughts by rating this story!</p>
         <a href="{% url 'story_detail' story.id %}#ratings" class="btn btn-success">Rate & Review</a>
     </div>

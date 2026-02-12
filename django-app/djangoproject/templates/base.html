@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}NAHB - Not Another Hero's Book{% endblock %}</title>
+    <title>{% block title %}Enchantext - Get lost in the right story{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
     :root{
@@ -95,10 +95,18 @@
     }
 
     nav .logo{
-        font-size: 1.6rem;
-        font-weight: 900;
-        color: var(--ink);
-        text-decoration: none;
+        display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+    .logo-icon{
+        width: 34px;
+        height: 34px;
     }
 
     nav .nav-links {
@@ -311,7 +319,10 @@
 <body>
     <nav>
         <div class="container">
-            <a href="{% url 'home' %}" class="logo">📚 NAHB</a>
+            <a href="{% url 'home' %}" class="logo">
+                <img width="30" height="30" src="https://img.icons8.com/nolan/64/books-1.png" alt="books" class="logo-icon">
+                <span>Enchantext</span>
+            </a>
             <ul class="nav-links">
                 <li><a href="{% url 'home' %}">Browse Stories</a></li>
                 {% if user.is_staff %}
@@ -360,8 +371,8 @@
     </div>
     
     <footer>
-        <p>&copy; 2026 NAHB - Not Another Hero's Book | Choose Your Own Adventure</p>
-        <p><small> Django + Flask Architecture</small></p>
+        <p>&copy; 2026 Enchantext -Get lost in the right story | Cast Your Own Adventure</p>
+        <p><small> Karma & Peushi Architecture</small></p>
     </footer>
     
     {% block extra_js %}{% endblock %}
