@@ -28,17 +28,14 @@
             <h3>What do you do?</h3>
             <div class="grid">
                 {% for choice in page.choices %}
-                    <a href="{% url 'play_page' story.id choice.next_page_id %}" 
-                       class="card" 
-                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                              color: white; 
-                              text-decoration: none; 
-                              transition: transform 0.3s, box-shadow 0.3s;
-                              cursor: pointer;">
+                    <a href="{% url 'play_page' story.id choice.next_page_id %}{% if is_preview %}?preview=1{% endif %}" 
+                    class="card" 
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                            color: white; 
+                            text-decoration: none; 
+                            transition: transform 0.3s, box-shadow 0.3s;
+                            cursor: pointer;">
                         <h4 style="color: white;">→ {{ choice.text }}</h4>
-                        {% if choice.requires_condition %}
-                            <small style="opacity: 0.8;">Conditional choice</small>
-                        {% endif %}
                     </a>
                 {% endfor %}
             </div>

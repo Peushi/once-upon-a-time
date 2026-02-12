@@ -29,7 +29,9 @@
         </p>
         
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            {% if not is_preview %}
             <a href="{% url 'play_story' story.id %}?resume=false" class="btn btn-success">Play Again</a>
+            {% endif %}
             <a href="{% url 'story_detail' story.id %}" class="btn btn-secondary">Story Details</a>
             <a href="{% url 'home' %}" class="btn">Browse More Stories</a>
              
@@ -41,7 +43,6 @@
     </div>
 </div>
 
-<!-- Encourage rating -->
 {% if user.is_authenticated %}
     <div class="card" style="background: #e8f5e9;">
         <h3>⭐ Enjoyed the story?</h3>

@@ -330,17 +330,23 @@ def unsuspend_story(request, story_id):
     return redirect("story_detail", story_id=story_id)
 
 
-@login_required
+
 def story_tree(request, story_id):
     story = flask_api.get_story(story_id, include_pages=True)
     if not story:
         messages.error(request, "Story not found")
-        return redirect("my_stories")
+        return redirect("home")
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to view the story map.")
+        return redirect("login")
 
-    # permission check
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = getattr(request.user, "profile", None)
+    if not profile:
+        messages.error(request, "You do not have permission to view this story map.")
+        return redirect("home")
+
     if not profile.is_admin() and story.get("author_id") != request.user.id:
-        messages.error(request, "You do not have permission to view this story tree.")
+        messages.error(request, "You do not have permission to view this story map.")
         return redirect("home")
 
     pages = story.get("pages", []) or []

@@ -132,8 +132,12 @@ def play_story(request, story_id):
     if story["status"] not in ["published", "draft"]:
         messages.error(request, "This story is not available for playing")
         return redirect("home")
+    
+    is_preview = (
+        request.user.is_authenticated and 
+        story.get("author_id") == request.user.id
+    )
 
-    # saved session
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
@@ -148,15 +152,12 @@ def play_story(request, story_id):
             "play_page", story_id=story_id, page_id=saved_session.current_page_id
         )
 
-    # start from beginning
     start_page = flask_api.get_story_start(story_id)
-
     start_page_id = start_page.get("page_id") if start_page else None
     if not start_page_id:
         messages.error(request, "Story has no start page set yet.")
         return redirect("story_detail", story_id=story_id)
 
-    # create/update the session
     if saved_session:
         saved_session.current_page_id = start_page_id
         saved_session.save()
@@ -167,9 +168,10 @@ def play_story(request, story_id):
             current_page_id=start_page_id,
             user=request.user if request.user.is_authenticated else None,
         )
-
-    return redirect("play_page", story_id=story_id, page_id=start_page_id)
-
+    redirect_url = f"/play/{story_id}/page/{start_page_id}/"
+    if is_preview:
+        redirect_url += "?preview=1"
+    return redirect(redirect_url)
 
 def play_page(request, story_id, page_id):
     story = flask_api.get_story(story_id)
@@ -178,7 +180,7 @@ def play_page(request, story_id, page_id):
     if not story or not page:
         messages.error(request, "Page not found")
         return redirect("home")
-
+    is_preview = request.GET.get("preview") == "1"
     session_key = request.session.session_key
     if session_key:
         PlaySession.objects.update_or_create(
@@ -189,21 +191,37 @@ def play_page(request, story_id, page_id):
                 "user": request.user if request.user.is_authenticated else None,
             },
         )
-
     if page.get("is_ending"):
-        play = Play.objects.create(
-            story_id=story_id,
-            ending_page_id=page_id,
-            user=request.user if request.user.is_authenticated else None,
-        )
+        if not is_preview:
+            play = Play.objects.create(
+                story_id=story_id,
+                ending_page_id=page_id,
+                user=request.user if request.user.is_authenticated else None,
+            )
+            play_id = play.id
+        else:
+            play_id = None 
+
         if session_key:
             PlaySession.objects.filter(
                 session_key=session_key, story_id=story_id
             ).delete()
-        context = {"story": story, "page": page, "is_ending": True, "play_id": play.id}
+
+        context = {
+            "story": story,
+            "page": page,
+            "is_ending": True,
+            "play_id": play_id,
+            "is_preview": is_preview, 
+        }
         return render(request, "game/play_ending.html", context)
 
-    context = {"story": story, "page": page, "is_ending": False}
+    context = {
+        "story": story,
+        "page": page,
+        "is_ending": False,
+        "is_preview": is_preview,
+    }
     return render(request, "game/play_page.html", context)
 
 

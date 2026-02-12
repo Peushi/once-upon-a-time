@@ -314,7 +314,9 @@
             <a href="{% url 'home' %}" class="logo">📚 NAHB</a>
             <ul class="nav-links">
                 <li><a href="{% url 'home' %}">Browse Stories</a></li>
+                {% if user.is_staff %}
                 <li><a href="{% url 'statistics' %}">Statistics</a></li>
+                {% endif %}
                 
                 {% if user.is_authenticated %}
                     {% if user.profile.is_author %}
