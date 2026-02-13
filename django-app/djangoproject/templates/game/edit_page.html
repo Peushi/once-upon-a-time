@@ -67,7 +67,12 @@
                 <ul style="margin: 1rem 0 0 1.5rem; color: #555;">
                     {% for choice in page.choices %}
                         <li style="margin-bottom: 0.5rem;">
-                            <strong>{{ choice.text }}</strong> → Page {{ choice.next_page_id }}
+                            <strong>{{ choice.text }}</strong> → 
+                            {% for p in story.pages %}
+                                {% if p.id == choice.next_page_id %}
+                                    Page {{ forloop.counter }}
+                                {% endif %}
+                            {% endfor %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -117,7 +122,7 @@
     <h3> Page Information</h3>
     <div class="grid grid-2">
         <div>
-            <strong>Page ID:</strong> {{ page.id }}
+            <strong>Page:</strong> {{ page.page_number }}
         </div>
         <div>
             <strong>Story ID:</strong> {{ page.story_id }}

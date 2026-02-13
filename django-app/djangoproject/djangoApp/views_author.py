@@ -204,7 +204,14 @@ def edit_page(request, page_id):
     if not page:
         messages.error(request, "Page not found")
         return redirect("my_stories")
-    story = flask_api.get_story(page["story_id"])
+    story = flask_api.get_story(page["story_id"], include_pages=True)
+    
+    page["page_number"] = page["id"] 
+    if story and story.get("pages"):
+        for idx, p in enumerate(story["pages"], start=1):
+            if p["id"] == page["id"]:
+                page["page_number"] = idx
+                break
     profile = get_object_or_404(UserProfile, user=request.user)
     if not profile.is_admin() and story.get("author_id") != request.user.id:
         return HttpResponseForbidden("You do not have permission to edit this page")
@@ -231,7 +238,13 @@ def delete_page(request, page_id):
         messages.error(request, "Page not found")
         return redirect("my_stories")
     story_id = page["story_id"]
-    story = flask_api.get_story(story_id)
+    story = flask_api.get_story(story_id, include_pages=True)
+    page["page_number"] = page["id"] 
+    if story and story.get("pages"):
+        for idx, p in enumerate(story["pages"], start=1):
+            if p["id"] == page["id"]:
+                page["page_number"] = idx
+                break
     profile = get_object_or_404(UserProfile, user=request.user)
     if not profile.is_admin() and story.get("author_id") != request.user.id:
         return HttpResponseForbidden("You do not have permission to delete this story")

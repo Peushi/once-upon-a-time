@@ -15,7 +15,7 @@
     <!-- Page Preview -->
     <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-            <strong style="color: #667eea;">Page #{{ page.id }}</strong>
+            <strong style="color: #667eea;">Page #{{ page.page_number }}</strong>
             {% if page.is_ending %}
                 <span class="badge" style="background: #4CAF50; color: white;">
                     ENDING
@@ -39,7 +39,12 @@
             </p>
             <ul style="margin: 0.5rem 0 0 1.5rem; color: #555;">
                 {% for choice in page.choices %}
-                    <li>{{ choice.text }} → Page {{ choice.next_page_id }}</li>
+                    <li>{{ choice.text }} → 
+                        {% for p in story.pages %}
+                            {% if p.id == choice.next_page_id %}
+                                Page {{ forloop.counter }}
+                            {% endif %}
+                        {% endfor %}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -93,7 +98,7 @@
                            required
                            style="margin-right: 0.5rem; width: 20px; height: 20px;">
                     <span style="color: #f44336; font-weight: 600;">
-                        I understand this will permanently delete Page #{{ page.id }} 
+                        I understand this will permanently delete Page #{{ page.page_number }} 
                         {% if page.choices %}and its {{ page.choices|length }} choice(s){% endif %}
                     </span>
                 </label>
@@ -124,7 +129,7 @@
     <h3> Page Details</h3>
     <div class="grid grid-2">
         <div>
-            <strong>Page ID:</strong> {{ page.id }}
+            <strong>Page:</strong> {{ page.page_number }}
         </div>
         <div>
             <strong>Story:</strong> {{ story.title }}

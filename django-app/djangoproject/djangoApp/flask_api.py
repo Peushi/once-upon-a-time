@@ -187,7 +187,7 @@ class FlaskAPIClient:
                 timeout=10,
             )
             result = self._handle_response(response)
-            return result.get("pages") if result else None
+            return result if result else None
         except Exception as e:
             print(f"Error updating page {page_id} : {e}")
             return None
@@ -239,7 +239,7 @@ class FlaskAPIClient:
                 timeout=10,
             )
             result = self._handle_response(response)
-            return result.get("choice") if result else None
+            return result if result else None
         except Exception as e:
             print(f"Error updating choice {choice_id} : {e}")
             return None
