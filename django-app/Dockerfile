@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy rest of the code
 COPY . .
 
+WORKDIR /app/djangoproject 
+
 # Tell Docker which port Django uses
 EXPOSE 8000
 

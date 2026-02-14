@@ -7,7 +7,7 @@ services:
       - FLASK_API_KEY=super-secret-key
       - DATABASE_URL=sqlite:///site.db
     volumes:
-      - ./flask-api:/app
+      - ./flask-api/instance:/app/instance
 
   django-app:
     build: ./django-app
@@ -20,7 +20,7 @@ services:
       - DEBUG=True
       - DB_NAME=db.sqlite3
     volumes:
-      - ./django-app:/app
+      - ./django-app/djangoproject:/app/djangoproject
     depends_on:
       - flask-api
 
