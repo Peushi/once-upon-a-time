@@ -47,9 +47,7 @@ Browser → Django (8000) → Flask API (5000) → SQLite
 
 **Frontend**
 - HTML Templates
-- CSS (Pastel Glassmorphism Theme)
-- Fredoka Font
-- Vis Network (Story Tree Visualization)
+- CSS
 
 **Other**
 - REST API with API Key Authentication
@@ -57,7 +55,7 @@ Browser → Django (8000) → Flask API (5000) → SQLite
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Option A — Manual Setup
 
 ### 1️⃣ Clone Repository
 
@@ -73,17 +71,18 @@ cd once-upon-a-time
 Create a `.env` file in **`flask-api/`**:
 
 ```
-API_KEY=nahb-secret-api-key-2026
+FLASK_API_KEY=super-secret-key
 DATABASE_URL=sqlite:///site.db
 ```
 
-Create a `.env` file in **`django-app/`**:
+Create a `.env` file in **`django-app/djangoproject/`**:
 
 ```
-FLASK_API_URL=http://localhost:5000
-FLASK_API_KEY=nahb-secret-api-key-2026
+FLASK_API_URL=http://127.0.0.1:5000
+FLASK_API_KEY=super-secret-key
 SECRET_KEY=django-dev-secret-2026
 DEBUG=True
+DB_NAME=db.sqlite3
 ```
 
 ---
@@ -110,7 +109,7 @@ Flask runs on: 👉 http://127.0.0.1:5000
 Open a **second terminal**:
 
 ```bash
-cd django-app
+cd django-app/djangoproject
 
 python -m venv venv
 source venv/bin/activate    # Mac/Linux
@@ -122,6 +121,23 @@ python manage.py runserver
 ```
 
 Django runs on: 👉 http://127.0.0.1:8000
+
+---
+
+## 🐳 Option B — Docker Setup
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop)
+
+```bash
+git clone https://github.com/Peushi/once-upon-a-time.git
+cd once-upon-a-time
+docker compose up
+```
+
+- Django → 👉 http://127.0.0.1:8000
+- Flask API → 👉 http://127.0.0.1:5001
+
+> ✅ Demo data and accounts are already included!
 
 ---
 
@@ -147,7 +163,7 @@ Both servers must be running **simultaneously**:
 To create your own admin account:
 
 ```bash
-cd django-app
+cd django-app/djangoproject
 python manage.py createsuperuser
 ```
 
@@ -164,7 +180,7 @@ python manage.py createsuperuser
 | GET | `/stories/<id>/start` | Get start page ID |
 | GET | `/pages/<id>` | Get page + choices |
 
-### Protected (requires `X-API-KEY` header)
+### Protected (requires `X-FLASK-API-KEY` header)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -218,8 +234,6 @@ Authors can view a graphical map of their story structure:
 - Interactive drag & zoom layout
 - Hierarchical graph view
 
-Powered by **[Vis Network](https://visjs.github.io/vis-network/docs/network/)**
-
 ---
 
 ## 👥 Roles & Permissions
@@ -257,9 +271,3 @@ The interface uses:
 - **Karma Soliman**
 
 ---
-
-## 📜 Academic Context
-
-Developed for:
-**Final Project – Django & Flask**
-EPITA – Computer Science Program
