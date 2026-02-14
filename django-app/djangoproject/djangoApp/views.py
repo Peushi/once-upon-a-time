@@ -5,11 +5,11 @@ from .models import Play, PlaySession, UserProfile, Rating, Report
 from django.contrib.auth.models import User
 from django.db.models import Count, Avg
 
-user = User.objects.get(username="keeps")  # replace with your username
-user.is_staff = True
-user.is_superuser = True  # gives full access
-user.save()
-print("Done! You are now staff.")
+#user = User.objects.get(username="keeps")  # replace with your username
+#user.is_staff = True
+#user.is_superuser = True  # gives full access
+#user.save()
+#print("Done! You are now staff.")
 
 def convert_tags_to_list(story):
     """Helper function to convert tags string to list"""

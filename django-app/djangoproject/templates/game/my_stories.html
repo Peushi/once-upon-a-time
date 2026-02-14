@@ -126,13 +126,13 @@
         </div>
         <div style="text-align: center;">
             <div style="font-size: 2.5rem; font-weight: bold;">
-                {% for story in stories %}{% if story.status == 'published' %}1{% endif %}{% empty %}0{% endfor %}
+                {{ published_count }}
             </div>
             <div style="opacity: 0.9;">Published</div>
         </div>
         <div style="text-align: center;">
             <div style="font-size: 2.5rem; font-weight: bold;">
-                {% for story in stories %}{% if story.status == 'draft' %}1{% endif %}{% empty %}0{% endfor %}
+                {{ draft_count }}
             </div>
             <div style="opacity: 0.9;">Drafts</div>
         </div>

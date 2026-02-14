@@ -66,7 +66,9 @@ def my_stories(request):
             my_stories[i] = full
     for story in my_stories:
         convert_tags_to_list(story)
-    context = {"stories": my_stories}
+    published_count = len([s for s in my_stories if s.get("status") == "published"])
+    draft_count = len([s for s in my_stories if s.get("status") == "draft"])
+    context = {"stories": my_stories, "published_count": published_count, "draft_count": draft_count,          }
     return render(request, "game/my_stories.html", context)
 
 
