@@ -1,0 +1,29 @@
+services:
+  flask-api:
+    build: ./flask-api
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_API_KEY=super-secret-key
+      - DATABASE_URL=sqlite:///site.db
+    volumes:
+      - ./flask-api:/app
+
+  django-app:
+    build: ./django-app
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_API_URL=http://flask-api:5000
+      - FLASK_API_KEY=super-secret-key
+      - SECRET_KEY=django-dev-secret-2026
+      - DEBUG=True
+      - DB_NAME=db.sqlite3
+    volumes:
+      - ./django-app:/app
+    depends_on:
+      - flask-api
+
+volumes:
+  flask-data:
+  django-data:
